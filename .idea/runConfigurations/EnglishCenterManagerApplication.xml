@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="EnglishCenterManagerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="com.english-center-manager.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.englishcentermanager.EnglishCenterManagerApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
