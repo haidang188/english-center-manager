@@ -4,7 +4,7 @@ import com.englishcentermanager.entity.enums;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +22,7 @@ public class UserForm {
     @Email(message = "Email khong hop le")
     private String email;
 
-    @Size(min = 6, message = "Mat khau phai co it nhat 6 ky tu")
+    @Pattern(regexp = "^$|.{6,}", message = "Mat khau phai co it nhat 6 ky tu")
     private String password;
 
     @NotBlank(message = "Vui long nhap so dien thoai")
