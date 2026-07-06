@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<main class="auth-page">
+    <section class="auth-card">
+        <div class="auth-visual" aria-hidden="true">
+            <div class="shape shape-square"></div>
+            <div class="shape shape-ring"></div>
+            <div class="shape shape-triangle"></div>
+            <div class="illustration-circle">
+                <div class="monitor">
+                    <div class="avatar-head"></div>
+                    <div class="avatar-body"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-panel">
+            <h1>Create Account</h1>
+
+            <form th:action="@{/register}" th:object="${registerForm}" method="post" class="auth-form register-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <label class="input-pill">
+                    <input type="text" th:field="*{fullName}" placeholder="Full name" autocomplete="name">
+                </label>
+                <p class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
+
+                <label class="input-pill">
+                    <input type="email" th:field="*{email}" placeholder="Email" autocomplete="email">
+                </label>
+                <p class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+
+                <label class="input-pill">
+                    <input type="password" th:field="*{password}" placeholder="Password" autocomplete="new-password">
+                </label>
+                <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+
+                <label class="input-pill">
+                    <input type="text" th:field="*{phoneNumber}" placeholder="Phone number" autocomplete="tel">
+                </label>
+                <p class="field-error" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></p>
+
+                <button type="submit" class="primary-button">REGISTER</button>
+            </form>
+
+            <a class="create-link compact" th:href="@{/login}">Already have an account? <span>Login →</span></a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

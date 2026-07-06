@@ -31,4 +31,8 @@ public interface UserService {
     boolean existsByEmail(String email);
 
     boolean existsByIdentityNumber(String identityNumber);
+    Optional<User> findByEmail(String email);
+    User register(User user);
+    User createByAdmin(User user);
+    User updateByAdmin(Long id, User user);
 }

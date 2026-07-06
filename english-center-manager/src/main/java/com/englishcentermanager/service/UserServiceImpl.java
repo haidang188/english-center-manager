@@ -4,6 +4,7 @@ import com.englishcentermanager.entity.User;
 import com.englishcentermanager.entity.enums.UserStatus;
 import com.englishcentermanager.repository.UserRepository;
 import com.englishcentermanager.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,11 +13,12 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
-
     @Override
     public List<User> findAll() {
         return userRepository.findAll();
@@ -107,5 +109,45 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsByIdentityNumber(String identityNumber) {
         return userRepository.existsByIdentityNumber(identityNumber);
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public User register(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setStatus(UserStatus.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+    @Override
+    public User createByAdmin(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+    @Override
+    public User updateByAdmin(Long id, User user){
+        User existingUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Khong tim thay tai khoan"));
+        existingUser.setFullName(user.getFullName());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPhoneNumber(user.getPhoneNumber());
+        existingUser.setDateOfBirth(user.getDateOfBirth());
+        existingUser.setAddress(user.getAddress());
+        existingUser.setIdentityNumber(user.getIdentityNumber());
+        existingUser.setRole(user.getRole());
+        existingUser.setStatus(user.getStatus());
+        existingUser.setUpdatedAt(LocalDateTime.now());
+
+        if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        return userRepository.save(existingUser);
     }
 }
