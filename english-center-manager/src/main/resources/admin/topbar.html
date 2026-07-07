@@ -1,0 +1,17 @@
+<header class="admin-topbar" th:fragment="topbar">
+    <div>
+        <p class="eyebrow">Admin Dashboard</p>
+        <h1>Quản lý trung tâm</h1>
+    </div>
+
+    <div class="topbar-actions">
+        <div class="search-box">
+            <input type="text" placeholder="Tìm kiếm nhanh...">
+        </div>
+
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+</header>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{admin/fragments/topbar :: topbar}"></div>
+
+        <section class="stats-grid" aria-label="Tổng quan quản trị">
+            <article class="stat-card accent-blue">
+                <p>Tài khoản</p>
+                <h2>0</h2>
+                <span>Tổng tài khoản hệ thống</span>
+            </article>
+
+            <article class="stat-card accent-green">
+                <p>Khóa học</p>
+                <h2>0</h2>
+                <span>Khóa học đang hoạt động</span>
+            </article>
+
+            <article class="stat-card accent-orange">
+                <p>Lớp học</p>
+                <h2>0</h2>
+                <span>Lớp đang mở</span>
+            </article>
+
+            <article class="stat-card accent-purple">
+                <p>Phòng học</p>
+                <h2>0</h2>
+                <span>Phòng còn sử dụng</span>
+            </article>
+        </section>
+
+        <section class="content-grid">
+            <article class="panel">
+                <div class="panel-header">
+                    <h3>Việc cần làm</h3>
+                    <span>Admin</span>
+                </div>
+
+                <ul class="task-list">
+                    <li>Tạo tài khoản giáo viên, giáo vụ, học viên.</li>
+                    <li>Thêm khóa học và cấu hình loại điểm.</li>
+                    <li>Tạo lớp học và phân công giảng viên.</li>
+                    <li>Sắp xếp phòng học và thời khóa biểu.</li>
+                </ul>
+            </article>
+
+            <article class="panel">
+                <div class="panel-header">
+                    <h3>Lối tắt</h3>
+                    <span>Quick actions</span>
+                </div>
+
+                <div class="quick-actions">
+                    <a th:href="@{/admin/users}">Quản lý tài khoản</a>
+                    <a th:href="@{/admin/courses}">Quản lý khóa học</a>
+                    <a th:href="@{/admin/classes}">Quản lý lớp học</a>
+                    <a th:href="@{/admin/schedules}">Thời khóa biểu</a>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>
