@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar" th:fragment="sidebar">
+    <div class="brand">
+        <div class="brand-logo">EC</div>
+        <div>
+            <h2>English Center</h2>
+            <p>Admin Portal</p>
+        </div>
+    </div>
+
+    <nav class="sidebar-menu">
+        <a th:href="@{/admin}" class="menu-item active">
+            <span class="menu-icon">⌂</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a th:href="@{/admin/users}" class="menu-item">
+            <span class="menu-icon">U</span>
+            <span>Quản lý tài khoản</span>
+        </a>
+
+        <a th:href="@{/admin/course-types}" class="menu-item">
+            <span class="menu-icon">T</span>
+            <span>Loại khóa học</span>
+        </a>
+
+        <a th:href="@{/admin/courses}" class="menu-item">
+            <span class="menu-icon">C</span>
+            <span>Khóa học</span>
+        </a>
+
+        <a th:href="@{/admin/score-components}" class="menu-item">
+            <span class="menu-icon">S</span>
+            <span>Cấu hình loại điểm</span>
+        </a>
+
+        <a th:href="@{/admin/rooms}" class="menu-item">
+            <span class="menu-icon">R</span>
+            <span>Quản lý phòng học</span>
+        </a>
+
+        <a th:href="@{/admin/classes}" class="menu-item">
+            <span class="menu-icon">L</span>
+            <span>Quản lý lớp học</span>
+        </a>
+
+        <a th:href="@{/admin/schedules}" class="menu-item">
+            <span class="menu-icon">T</span>
+            <span>Thời khóa biểu</span>
+        </a>
+
+        <a th:href="@{/admin/statistics}" class="menu-item">
+            <span class="menu-icon">%</span>
+            <span>Thống kê</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <p>Signed in as</p>
+        <strong>Administrator</strong>
+    </div>
+</aside>
+</body>
+</html>

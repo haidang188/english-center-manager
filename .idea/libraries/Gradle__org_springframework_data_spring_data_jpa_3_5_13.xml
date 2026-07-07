@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: org.springframework.data:spring-data-jpa:3.5.13" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="org.springframework.data" artifactId="spring-data-jpa" version="3.5.13" baseVersion="3.5.13" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-jpa/3.5.13/f736cdc4e21d3191c8a83bcb38c9669e911d98c3/spring-data-jpa-3.5.13.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-jpa/3.5.13/e3f7dea65e92dc56f56fb22e09783cd4b60a3377/spring-data-jpa-3.5.13-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
