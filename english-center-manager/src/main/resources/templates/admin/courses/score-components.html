@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cau hinh diem</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{admin/fragments/topbar :: topbar}"></div>
+
+        <section class="content-panel">
+            <div class="page-header">
+                <div>
+                    <h1>Cau hinh diem</h1>
+                    <p>
+                        <span th:text="${course.courseCode}"></span>
+                        -
+                        <span th:text="${course.courseName}"></span>
+                    </p>
+                </div>
+
+                <div class="header-actions">
+                    <a th:href="@{/admin/courses}" class="btn btn-light">Quay lai</a>
+                    <a th:href="@{/admin/courses/{id}/score-components/create(id=${course.id})}" class="btn btn-primary">
+                        + Them thanh phan diem
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+            <div class="summary-strip">
+                <div>
+                    <strong>Tong ty trong</strong>
+                    <span th:text="${totalWeight} + '%'"></span>
+                </div>
+
+                <div th:if="${totalWeightComplete}" class="status-badge status-active">
+                    Du 100%
+                </div>
+
+                <div th:if="${!totalWeightComplete and !totalWeightOver}" class="status-badge status-warning">
+                    Chua du 100%
+                </div>
+
+                <div th:if="${totalWeightOver}" class="status-badge status-inactive">
+                    Vuot 100%
+                </div>
+            </div>
+
+            <div class="table-card">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Thu tu</th>
+                        <th>Ma diem</th>
+                        <th>Ten thanh phan</th>
+                        <th>Diem toi da</th>
+                        <th>Ty trong</th>
+                        <th>Bat buoc</th>
+                        <th>Tinh diem</th>
+                        <th>Thao tac</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="component : ${components}">
+                        <td th:text="${component.displayOrder}"></td>
+                        <td th:text="${component.componentCode}"></td>
+                        <td th:text="${component.componentName}"></td>
+                        <td th:text="${component.maxScore}"></td>
+                        <td th:text="${component.weightPercent} + '%'"></td>
+                        <td>
+                            <span th:if="${component.required}" class="status-badge status-active">Co</span>
+                            <span th:unless="${component.required}" class="status-badge status-inactive">Khong</span>
+                        </td>
+                        <td>
+                            <span th:if="${component.calculated}" class="status-badge status-active">Co</span>
+                            <span th:unless="${component.calculated}" class="status-badge status-inactive">Khong</span>
+                        </td>
+                        <td class="actions">
+                            <a th:href="@{/admin/courses/{courseId}/score-components/{componentId}/edit(courseId=${course.id}, componentId=${component.id})}"
+                               class="btn btn-small">
+                                Sua
+                            </a>
+
+                            <form th:action="@{/admin/courses/{courseId}/score-components/{componentId}/delete(courseId=${course.id}, componentId=${component.id})}"
+                                  method="post"
+                                  class="inline-form"
+                                  onsubmit="return confirm('Ban co chac muon xoa thanh phan diem nay?')">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-small btn-danger">Xoa</button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${components.isEmpty()}">
+                        <td colspan="8" class="empty-text">Chua cau hinh thanh phan diem</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

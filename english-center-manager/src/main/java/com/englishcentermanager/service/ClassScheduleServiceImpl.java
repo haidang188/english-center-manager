@@ -3,6 +3,8 @@ package com.englishcentermanager.service;
 import com.englishcentermanager.entity.ClassSchedule;
 import com.englishcentermanager.entity.CourseClass;
 import com.englishcentermanager.entity.Room;
+import com.englishcentermanager.entity.User;
+import com.englishcentermanager.entity.enums;
 import com.englishcentermanager.repository.ClassScheduleRepository;
 import org.springframework.stereotype.Service;
 
@@ -64,17 +66,34 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
     }
 
     @Override
-    public List<ClassSchedule> findByDayOfWeek(String dayOfWeek) {
+    public List<ClassSchedule> findByDayOfWeek(enums.DayOfWeek dayOfWeek) {
         return classScheduleRepository.findByDayOfWeek(dayOfWeek);
     }
 
     @Override
-    public boolean existsByCourseClassAndDayOfWeekAndStartTime(CourseClass courseClass, String dayOfWeek, LocalTime startTime) {
-        return classScheduleRepository.existsByCourseClassAndDayOfWeekAndStartTime(courseClass, dayOfWeek, startTime);
+    public boolean existsRoomTimeConflict(Room room,
+                                          enums.DayOfWeek dayOfWeek,
+                                          LocalTime startTime,
+                                          LocalTime endTime,
+                                          Long ignoredId) {
+        return classScheduleRepository.existsRoomTimeConflict(room, dayOfWeek, startTime, endTime, ignoredId);
     }
 
     @Override
-    public boolean existsByRoomAndDayOfWeekAndStartTime(Room room, String dayOfWeek, LocalTime startTime) {
-        return classScheduleRepository.existsByRoomAndDayOfWeekAndStartTime(room, dayOfWeek, startTime);
+    public boolean existsClassTimeConflict(CourseClass courseClass,
+                                           enums.DayOfWeek dayOfWeek,
+                                           LocalTime startTime,
+                                           LocalTime endTime,
+                                           Long ignoredId) {
+        return classScheduleRepository.existsClassTimeConflict(courseClass, dayOfWeek, startTime, endTime, ignoredId);
+    }
+
+    @Override
+    public boolean existsTeacherTimeConflict(User teacher,
+                                             enums.DayOfWeek dayOfWeek,
+                                             LocalTime startTime,
+                                             LocalTime endTime,
+                                             Long ignoredId) {
+        return classScheduleRepository.existsTeacherTimeConflict(teacher, dayOfWeek, startTime, endTime, ignoredId);
     }
 }

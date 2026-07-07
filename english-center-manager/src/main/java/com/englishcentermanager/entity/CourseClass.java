@@ -36,6 +36,7 @@ public class CourseClass {
     private LocalDate startDate;
     private LocalDate endDate;
 
+
     @Enumerated(EnumType.STRING)
     private enums.ClassStatus status = enums.ClassStatus.PLANNED;
 

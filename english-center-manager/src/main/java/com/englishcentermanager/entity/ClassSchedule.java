@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -27,8 +26,9 @@ public class ClassSchedule {
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String dayOfWeek;
+    private enums.DayOfWeek dayOfWeek;
 
     private LocalTime startTime;
     private LocalTime endTime;

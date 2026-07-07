@@ -96,4 +96,9 @@ public class CourseClassServiceImpl implements CourseClassService {
     public boolean existsByClassCode(String classCode) {
         return courseClassRepository.existsByClassCode(classCode);
     }
+
+    @Override
+    public boolean existsByClassCodeAndIdNot(String classCode, Long id) {
+        return courseClassRepository.existsByClassCodeAndIdNot(classCode, id);
+    }
 }

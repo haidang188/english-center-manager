@@ -3,6 +3,8 @@ package com.englishcentermanager.service;
 import com.englishcentermanager.entity.ClassSchedule;
 import com.englishcentermanager.entity.CourseClass;
 import com.englishcentermanager.entity.Room;
+import com.englishcentermanager.entity.User;
+import com.englishcentermanager.entity.enums;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -23,9 +25,23 @@ public interface ClassScheduleService {
 
     List<ClassSchedule> findByRoom(Room room);
 
-    List<ClassSchedule> findByDayOfWeek(String dayOfWeek);
+    List<ClassSchedule> findByDayOfWeek(enums.DayOfWeek dayOfWeek);
 
-    boolean existsByCourseClassAndDayOfWeekAndStartTime(CourseClass courseClass, String dayOfWeek, LocalTime startTime);
+    boolean existsRoomTimeConflict(Room room,
+                                   enums.DayOfWeek dayOfWeek,
+                                   LocalTime startTime,
+                                   LocalTime endTime,
+                                   Long ignoredId);
 
-    boolean existsByRoomAndDayOfWeekAndStartTime(Room room, String dayOfWeek, LocalTime startTime);
+    boolean existsClassTimeConflict(CourseClass courseClass,
+                                    enums.DayOfWeek dayOfWeek,
+                                    LocalTime startTime,
+                                    LocalTime endTime,
+                                    Long ignoredId);
+
+    boolean existsTeacherTimeConflict(User teacher,
+                                      enums.DayOfWeek dayOfWeek,
+                                      LocalTime startTime,
+                                      LocalTime endTime,
+                                      Long ignoredId);
 }

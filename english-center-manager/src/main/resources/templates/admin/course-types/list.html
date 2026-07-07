@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quan ly loai khoa hoc</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{admin/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Quan ly loai khoa hoc</h3>
+                    <span>Quan ly nhom chuong trinh nhu TOEIC, IELTS, giao tiep, pho thong</span>
+                </div>
+
+                <a th:href="@{/admin/course-types/create}" class="action-button">Them loai khoa hoc</a>
+            </div>
+
+            <div th:if="${successMessage}" class="flash-message success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="flash-message error" th:text="${errorMessage}"></div>
+
+            <form th:action="@{/admin/course-types}" method="get" class="filter-form advanced">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Tim ma hoac ten loai khoa hoc...">
+
+                <select name="active">
+                    <option value="">Tat ca trang thai</option>
+                    <option value="true" th:selected="${active != null and active == true}">Dang su dung</option>
+                    <option value="false" th:selected="${active != null and active == false}">Ngung su dung</option>
+                </select>
+
+                <button type="submit">Loc</button>
+                <a th:href="@{/admin/course-types}" class="cancel-button compact">Xoa loc</a>
+            </form>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Ma loai</th>
+                        <th>Ten loai khoa hoc</th>
+                        <th>Mo ta</th>
+                        <th>Trang thai</th>
+                        <th>Thao tac</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="type : ${courseTypes}">
+                        <td><strong th:text="${type.typeCode}"></strong></td>
+                        <td th:text="${type.typeName}"></td>
+                        <td th:text="${type.description}"></td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${type.active} ? ' active' : ' inactive'"
+                                  th:text="${type.active} ? 'Dang su dung' : 'Ngung su dung'">
+                            </span>
+                        </td>
+                        <td class="table-actions">
+                            <a th:href="@{/admin/course-types/{id}/edit(id=${type.id})}" class="small-button edit">Sua</a>
+
+                            <form th:action="@{/admin/course-types/{id}/toggle(id=${type.id})}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit"
+                                        class="small-button"
+                                        th:classappend="${type.active} ? ' danger' : ' success'"
+                                        th:text="${type.active} ? 'Ngung' : 'Kich hoat'">
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(courseTypes)}">
+                        <td colspan="5" class="empty-row">Khong co loai khoa hoc phu hop</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" th:if="${courseTypePage != null and courseTypePage.totalPages > 1}">
+                <a th:classappend="${courseTypePage.first} ? ' disabled'"
+                   th:href="@{/admin/course-types(page=${courseTypePage.number - 1}, keyword=${keyword}, active=${active})}">
+                    Truoc
+                </a>
+
+                <span th:each="pageNumber : ${#numbers.sequence(0, courseTypePage.totalPages - 1)}">
+                    <a th:href="@{/admin/course-types(page=${pageNumber}, keyword=${keyword}, active=${active})}"
+                       th:classappend="${pageNumber == courseTypePage.number} ? ' active'"
+                       th:text="${pageNumber + 1}">
+                    </a>
+                </span>
+
+                <a th:classappend="${courseTypePage.last} ? ' disabled'"
+                   th:href="@{/admin/course-types(page=${courseTypePage.number + 1}, keyword=${keyword}, active=${active})}">
+                    Sau
+                </a>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
