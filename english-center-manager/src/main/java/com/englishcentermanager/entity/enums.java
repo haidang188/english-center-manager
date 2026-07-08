@@ -14,6 +14,16 @@ public class enums
         CANCELLED
     }
 
+    public enum DayOfWeek{
+        MONDAY,
+        TUESDAY,
+        WEDNESDAY,
+        THURSDAY,
+        FRIDAY,
+        SATURDAY,
+        SUNDAY
+    }
+
     public enum StudentClassStatus{
         STUDYING,
         WAITING_TRANSFER,

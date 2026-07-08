@@ -17,4 +17,5 @@ public interface CourseScoreComponentRepository extends JpaRepository<CourseScor
     List<CourseScoreComponent> findByCourseOrderByDisplayOrderAsc(Course course);
 
     List<CourseScoreComponent> findByComponentNameContainingIgnoreCase(String keyword);
+    boolean existsByCourseAndComponentCodeAndIdNot(Course course, String componentCode, Long id);
 }

@@ -30,4 +30,6 @@ public interface CourseClassService {
     List<CourseClass> searchByKeyword(String keyword);
 
     boolean existsByClassCode(String classCode);
+
+    boolean existsByClassCodeAndIdNot(String classCode, Long id);
 }

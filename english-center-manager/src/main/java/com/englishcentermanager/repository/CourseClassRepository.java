@@ -16,6 +16,8 @@ public interface CourseClassRepository extends JpaRepository<CourseClass, Long> 
 
     boolean existsByClassCode(String classCode);
 
+    boolean existsByClassCodeAndIdNot(String classCode, Long id);
+
     List<CourseClass> findByCourse(Course course);
 
     List<CourseClass> findByTeacher(User teacher);
