@@ -25,4 +25,6 @@ public interface RoomService {
     List<Room> searchByKeyword(String keyword);
 
     boolean existsByRoomCode(String roomCode);
+
+    boolean existsByRoomCodeAndIdNot(String roomCode, Long id);
 }

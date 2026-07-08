@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${isEdit} ? 'Cap nhat lich hoc' : 'Them lich hoc'"></title>
+    <title th:text="${isEdit} ? 'Cập nhật lịch học' : 'Thêm lịch học'"></title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -16,11 +16,11 @@
         <section class="panel form-panel">
             <div class="panel-header">
                 <div>
-                    <h3 th:text="${isEdit} ? 'Cap nhat lich hoc' : 'Them lich hoc'"></h3>
-                    <span>He thong tu kiem tra trung phong, trung lop va trung giao vien</span>
+                    <h3 th:text="${isEdit} ? 'Cập nhật lịch học' : 'Thêm lịch học'"></h3>
+                    <span>Hệ thống tự kiểm tra trùng phòng, trùng lớp và trùng giáo viên</span>
                 </div>
 
-                <a th:href="@{/admin/schedules}" class="secondary-link">Quay lai</a>
+                <a th:href="@{/admin/schedules}" class="secondary-link">Quay lại</a>
             </div>
 
             <form th:object="${scheduleForm}"
@@ -32,9 +32,9 @@
 
                 <div class="form-grid">
                     <div class="form-group full">
-                        <label>Lop hoc</label>
+                        <label>Lớp học</label>
                         <select th:field="*{classId}">
-                            <option value="">-- Chon lop hoc --</option>
+                            <option value="">-- Chọn lớp học --</option>
                             <option th:each="courseClass : ${classes}"
                                     th:value="${courseClass.id}"
                                     th:text="${courseClass.className + ' - ' + courseClass.teacher.fullName}">
@@ -44,59 +44,59 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Phong hoc</label>
+                        <label>Phòng học</label>
                         <select th:field="*{roomId}">
-                            <option value="">-- Chon phong hoc --</option>
+                            <option value="">-- Chọn phòng học --</option>
                             <option th:each="room : ${rooms}"
                                     th:value="${room.id}"
-                                    th:text="${room.roomName + ' (' + room.capacity + ' cho)'}">
+                                    th:text="${room.roomName + ' (' + room.capacity + ' chỗ)'}">
                             </option>
                         </select>
                         <p class="field-error" th:if="${#fields.hasErrors('roomId')}" th:errors="*{roomId}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Thu</label>
+                        <label>Thứ</label>
                         <select th:field="*{dayOfWeek}">
-                            <option value="">-- Chon thu --</option>
+                            <option value="">-- Chọn thứ --</option>
                             <option th:each="day : ${days}"
                                     th:value="${day}"
-                                    th:text="${day}">
+                                    th:text="${dayLabels[day]}">
                             </option>
                         </select>
                         <p class="field-error" th:if="${#fields.hasErrors('dayOfWeek')}" th:errors="*{dayOfWeek}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Gio bat dau</label>
+                        <label>Giờ bắt đầu</label>
                         <input type="time" th:field="*{startTime}">
                         <p class="field-error" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Gio ket thuc</label>
+                        <label>Giờ kết thúc</label>
                         <input type="time" th:field="*{endTime}">
                         <p class="field-error" th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}"></p>
                     </div>
 
                     <div class="form-group full">
-                        <label>Ghi chu</label>
-                        <input type="text" th:field="*{note}" placeholder="Khong bat buoc">
+                        <label>Ghi chú</label>
+                        <input type="text" th:field="*{note}" placeholder="Không bắt buộc">
                         <p class="field-error" th:if="${#fields.hasErrors('note')}" th:errors="*{note}"></p>
                     </div>
                 </div>
 
                 <div th:if="${#lists.isEmpty(rooms)}" class="flash-message error">
-                    Chua co phong hoc active. Hay them phong 101, 102, 201, 202 vao database truoc.
+                    Chưa có phòng học đang sử dụng. Hãy thêm phòng 101, 102, 201, 202 vào database trước.
                 </div>
 
                 <div th:if="${#lists.isEmpty(classes)}" class="flash-message error">
-                    Chua co lop hoc. Hay tao lop hoc truoc khi tao lich.
+                    Chưa có lớp học. Hãy tạo lớp học trước khi tạo lịch.
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="action-button">Luu lich hoc</button>
-                    <a th:href="@{/admin/schedules}" class="cancel-button">Huy</a>
+                    <button type="submit" class="action-button">Lưu lịch học</button>
+                    <a th:href="@{/admin/schedules}" class="cancel-button">Hủy</a>
                 </div>
             </form>
         </section>

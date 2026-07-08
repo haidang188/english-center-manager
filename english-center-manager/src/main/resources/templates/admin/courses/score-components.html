@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Cau hinh diem</title>
+    <title>Cấu hình điểm</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -15,7 +15,7 @@
         <section class="content-panel">
             <div class="page-header">
                 <div>
-                    <h1>Cau hinh diem</h1>
+                    <h1>Cấu hình điểm</h1>
                     <p>
                         <span th:text="${course.courseCode}"></span>
                         -
@@ -24,9 +24,9 @@
                 </div>
 
                 <div class="header-actions">
-                    <a th:href="@{/admin/courses}" class="btn btn-light">Quay lai</a>
+                    <a th:href="@{/admin/score-components}" class="btn btn-light">Quay lại</a>
                     <a th:href="@{/admin/courses/{id}/score-components/create(id=${course.id})}" class="btn btn-primary">
-                        + Them thanh phan diem
+                        + Thêm thành phần điểm
                     </a>
                 </div>
             </div>
@@ -36,20 +36,20 @@
 
             <div class="summary-strip">
                 <div>
-                    <strong>Tong ty trong</strong>
+                    <strong>Tổng tỷ trọng</strong>
                     <span th:text="${totalWeight} + '%'"></span>
                 </div>
 
                 <div th:if="${totalWeightComplete}" class="status-badge status-active">
-                    Du 100%
+                    Đủ 100%
                 </div>
 
                 <div th:if="${!totalWeightComplete and !totalWeightOver}" class="status-badge status-warning">
-                    Chua du 100%
+                    Chưa đủ 100%
                 </div>
 
                 <div th:if="${totalWeightOver}" class="status-badge status-inactive">
-                    Vuot 100%
+                    Vượt 100%
                 </div>
             </div>
 
@@ -57,14 +57,14 @@
                 <table class="admin-table">
                     <thead>
                     <tr>
-                        <th>Thu tu</th>
-                        <th>Ma diem</th>
-                        <th>Ten thanh phan</th>
-                        <th>Diem toi da</th>
-                        <th>Ty trong</th>
-                        <th>Bat buoc</th>
-                        <th>Tinh diem</th>
-                        <th>Thao tac</th>
+                        <th>Thứ tự</th>
+                        <th>Mã điểm</th>
+                        <th>Tên thành phần</th>
+                        <th>Điểm tối đa</th>
+                        <th>Tỷ trọng</th>
+                        <th>Bắt buộc</th>
+                        <th>Tính điểm</th>
+                        <th>Thao tác</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -75,31 +75,31 @@
                         <td th:text="${component.maxScore}"></td>
                         <td th:text="${component.weightPercent} + '%'"></td>
                         <td>
-                            <span th:if="${component.required}" class="status-badge status-active">Co</span>
-                            <span th:unless="${component.required}" class="status-badge status-inactive">Khong</span>
+                            <span th:if="${component.required}" class="boolean-mark boolean-yes" title="Có">&#10003;</span>
+                            <span th:unless="${component.required}" class="boolean-mark boolean-no" title="Không">&#10005;</span>
                         </td>
                         <td>
-                            <span th:if="${component.calculated}" class="status-badge status-active">Co</span>
-                            <span th:unless="${component.calculated}" class="status-badge status-inactive">Khong</span>
+                            <span th:if="${component.calculated}" class="boolean-mark boolean-yes" title="Có">&#10003;</span>
+                            <span th:unless="${component.calculated}" class="boolean-mark boolean-no" title="Không">&#10005;</span>
                         </td>
                         <td class="actions">
                             <a th:href="@{/admin/courses/{courseId}/score-components/{componentId}/edit(courseId=${course.id}, componentId=${component.id})}"
                                class="btn btn-small">
-                                Sua
+                                Sửa
                             </a>
 
                             <form th:action="@{/admin/courses/{courseId}/score-components/{componentId}/delete(courseId=${course.id}, componentId=${component.id})}"
                                   method="post"
                                   class="inline-form"
-                                  onsubmit="return confirm('Ban co chac muon xoa thanh phan diem nay?')">
+                                  onsubmit="return confirm('Bạn có chắc muốn xóa thành phần điểm này?')">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                <button type="submit" class="btn btn-small btn-danger">Xoa</button>
+                                <button type="submit" class="btn btn-small btn-danger">Xóa</button>
                             </form>
                         </td>
                     </tr>
 
                     <tr th:if="${components.isEmpty()}">
-                        <td colspan="8" class="empty-text">Chua cau hinh thanh phan diem</td>
+                        <td colspan="8" class="empty-text">Chưa cấu hình thành phần điểm</td>
                     </tr>
                     </tbody>
                 </table>

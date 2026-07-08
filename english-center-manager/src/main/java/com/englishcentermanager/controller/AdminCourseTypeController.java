@@ -84,7 +84,7 @@ public class AdminCourseTypeController {
                                    Model model,
                                    RedirectAttributes redirectAttributes) {
         if (courseTypeService.existsByTypeCode(courseTypeForm.getTypeCode())) {
-            bindingResult.rejectValue("typeCode", "duplicate", "Ma loai khoa hoc da ton tai");
+            bindingResult.rejectValue("typeCode", "duplicate", "Mã loại khóa học đã tồn tại");
         }
 
         if (bindingResult.hasErrors()) {
@@ -93,7 +93,7 @@ public class AdminCourseTypeController {
         }
 
         courseTypeService.save(toEntity(courseTypeForm));
-        redirectAttributes.addFlashAttribute("successMessage", "Them loai khoa hoc thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm loại khóa học thành công.");
 
         return "redirect:/admin/course-types";
     }
@@ -105,7 +105,7 @@ public class AdminCourseTypeController {
         CourseType courseType = courseTypeService.findById(id).orElse(null);
 
         if (courseType == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay loai khoa hoc.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy loại khóa học.");
             return "redirect:/admin/course-types";
         }
 
@@ -124,13 +124,13 @@ public class AdminCourseTypeController {
         CourseType existingCourseType = courseTypeService.findById(id).orElse(null);
 
         if (existingCourseType == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay loai khoa hoc.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy loại khóa học.");
             return "redirect:/admin/course-types";
         }
 
         courseTypeService.findByTypeCode(courseTypeForm.getTypeCode())
                 .filter(type -> !type.getId().equals(id))
-                .ifPresent(type -> bindingResult.rejectValue("typeCode", "duplicate", "Ma loai khoa hoc da ton tai"));
+                .ifPresent(type -> bindingResult.rejectValue("typeCode", "duplicate", "Mã loại khóa học đã tồn tại"));
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("isEdit", true);
@@ -138,7 +138,7 @@ public class AdminCourseTypeController {
         }
 
         courseTypeService.update(id, toEntity(courseTypeForm));
-        redirectAttributes.addFlashAttribute("successMessage", "Cap nhat loai khoa hoc thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật loại khóa học thành công.");
 
         return "redirect:/admin/course-types";
     }
@@ -149,16 +149,16 @@ public class AdminCourseTypeController {
         CourseType courseType = courseTypeService.findById(id).orElse(null);
 
         if (courseType == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay loai khoa hoc.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy loại khóa học.");
             return "redirect:/admin/course-types";
         }
 
         if (Boolean.TRUE.equals(courseType.getActive())) {
             courseTypeService.deactivate(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Da ngung su dung loai khoa hoc.");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã ngưng sử dụng loại khóa học.");
         } else {
             courseTypeService.activate(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Da kich hoat loai khoa hoc.");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã kích hoạt loại khóa học.");
         }
 
         return "redirect:/admin/course-types";

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${isEdit} ? 'Cap nhat loai khoa hoc' : 'Them loai khoa hoc'"></title>
+    <title th:text="${isEdit} ? 'Cập nhật loại khóa học' : 'Thêm loại khóa học'"></title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -16,11 +16,11 @@
         <section class="panel form-panel">
             <div class="panel-header">
                 <div>
-                    <h3 th:text="${isEdit} ? 'Cap nhat loai khoa hoc' : 'Them loai khoa hoc'"></h3>
-                    <span>Loai khoa hoc la nhom chuong trinh de phan loai cac khoa hoc cu the</span>
+                    <h3 th:text="${isEdit} ? 'Cập nhật loại khóa học' : 'Thêm loại khóa học'"></h3>
+                    <span>Loại khóa học là nhóm chương trình để phân loại các khóa học cụ thể</span>
                 </div>
 
-                <a th:href="@{/admin/course-types}" class="secondary-link">Quay lai</a>
+                <a th:href="@{/admin/course-types}" class="secondary-link">Quay lại</a>
             </div>
 
             <form th:object="${courseTypeForm}"
@@ -32,19 +32,19 @@
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Ma loai khoa hoc</label>
+                        <label>Mã loại khóa học</label>
                         <input type="text" th:field="*{typeCode}" placeholder="TOEIC_2_SKILLS">
                         <p class="field-error" th:if="${#fields.hasErrors('typeCode')}" th:errors="*{typeCode}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Ten loai khoa hoc</label>
+                        <label>Tên loại khóa học</label>
                         <input type="text" th:field="*{typeName}" placeholder="TOEIC 2 ky nang">
                         <p class="field-error" th:if="${#fields.hasErrors('typeName')}" th:errors="*{typeName}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Trang thai</label>
+                        <label>Trạng thái</label>
                         <select th:field="*{active}">
                             <option th:value="true">Dang su dung</option>
                             <option th:value="false">Ngung su dung</option>
@@ -53,14 +53,14 @@
 
                     <div class="form-group full">
                         <label>Mo ta</label>
-                        <input type="text" th:field="*{description}" placeholder="Mo ta ngan ve loai khoa hoc">
+                        <input type="text" th:field="*{description}" placeholder="Mô tả ngắn về loại khóa học">
                         <p class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="action-button">Luu loai khoa hoc</button>
-                    <a th:href="@{/admin/course-types}" class="cancel-button">Huy</a>
+                    <button type="submit" class="action-button">Lưu loại khóa học</button>
+                    <a th:href="@{/admin/course-types}" class="cancel-button">Hủy</a>
                 </div>
             </form>
         </section>

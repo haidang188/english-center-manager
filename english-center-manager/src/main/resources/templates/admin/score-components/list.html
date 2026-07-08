@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cấu hình loại điểm</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{admin/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Cấu hình loại điểm</h3>
+                    <span>Xem công thức điểm của từng khóa học và mở chi tiết để chỉnh sửa thành phần điểm.</span>
+                </div>
+            </div>
+
+            <div th:if="${successMessage}" class="flash-message success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="flash-message error" th:text="${errorMessage}"></div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Mã khóa học</th>
+                        <th>Tên khóa học</th>
+                        <th>Công thức điểm</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="course : ${courses}">
+                        <td><strong th:text="${course.courseCode}"></strong></td>
+                        <td>
+                            <span th:text="${course.courseName}"></span>
+                            <small th:text="${course.courseType.typeName}"></small>
+                        </td>
+                        <td class="formula-cell" th:text="${formulasByCourse[course.id]}"></td>
+                        <td class="table-actions">
+                            <a th:href="@{/admin/courses/{id}/score-components(id=${course.id})}"
+                               class="small-button edit">
+                                Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(courses)}">
+                        <td colspan="4" class="empty-row">Chưa có khóa học để cấu hình điểm.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

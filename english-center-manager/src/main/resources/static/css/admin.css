@@ -197,6 +197,141 @@
     font-weight: 700;
 }
 
+.formula-cell {
+    max-width: 460px;
+    color: #354153;
+    line-height: 1.5;
+}
+
+.boolean-mark {
+    width: 30px;
+    height: 30px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.boolean-yes {
+    background: #e8f7e5;
+    color: #2f8f2f;
+}
+
+.boolean-no {
+    background: #fdecec;
+    color: #c7352b;
+}
+
+.schedule-calendar {
+    overflow-x: auto;
+    margin: 18px 0;
+    border: 1px solid #e1e7f0;
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.schedule-calendar-table {
+    width: 100%;
+    min-width: 980px;
+    border-collapse: collapse;
+}
+
+.schedule-calendar-table th,
+.schedule-calendar-table td {
+    width: 13%;
+    min-width: 130px;
+    vertical-align: top;
+    border-right: 1px solid #edf0f5;
+    border-bottom: 1px solid #edf0f5;
+    padding: 12px;
+}
+
+.schedule-calendar-table th:first-child,
+.schedule-calendar-table td:first-child {
+    width: 110px;
+    min-width: 110px;
+}
+
+.schedule-calendar-table thead th {
+    background: #f8faff;
+    color: #5366d8;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.schedule-calendar-table tbody th {
+    background: #f8faff;
+    color: #526070;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.calendar-empty {
+    color: #a0a8b5;
+    font-size: 12px;
+    text-align: center;
+}
+
+.calendar-event {
+    margin-bottom: 8px;
+    padding: 10px;
+    border-left: 4px solid #5366d8;
+    border-radius: 12px;
+    background: #eef1ff;
+}
+
+.calendar-event strong,
+.calendar-event span,
+.calendar-event small {
+    display: block;
+}
+
+.calendar-event strong {
+    color: #243042;
+    font-size: 13px;
+}
+
+.calendar-event span {
+    margin-top: 4px;
+    color: #354153;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.calendar-event small {
+    margin-top: 3px;
+    color: #6d7788;
+}
+
+.schedule-action-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.schedule-action-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #f8faff;
+}
+
+.schedule-action-card strong,
+.schedule-action-card span {
+    display: block;
+}
+
+.schedule-action-card span {
+    margin-top: 4px;
+    color: #6d7788;
+    font-size: 13px;
+}
+
 .schedule-board {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thong ke</title>
+    <title>Thống kê</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -15,27 +15,27 @@
 
         <section class="stats-grid">
             <article class="stat-card accent-blue">
-                <p>Giao vien</p>
+                <p>Giáo viên</p>
                 <h2 th:text="${totalTeachers}">0</h2>
-                <span>Tong giao vien trong he thong</span>
+                <span>Tổng giáo viên trong hệ thống</span>
             </article>
 
             <article class="stat-card accent-green">
-                <p>Hoc vien</p>
+                <p>Học viên</p>
                 <h2 th:text="${totalStudents}">0</h2>
-                <span>Tong hoc vien</span>
+                <span>Tổng học viên</span>
             </article>
 
             <article class="stat-card accent-orange">
-                <p>Lop dang mo</p>
+                <p>Lớp đang mở</p>
                 <h2 th:text="${activeClassCount}">0</h2>
-                <span>Lop planned/open/ongoing</span>
+                <span>Lớp dự kiến, đang mở hoặc đang học</span>
             </article>
 
             <article class="stat-card accent-purple">
-                <p>Lich hoc</p>
+                <p>Lịch học</p>
                 <h2 th:text="${totalSchedules}">0</h2>
-                <span>So lich hoc da xep</span>
+                <span>Số lịch học đã xếp</span>
             </article>
         </section>
 
@@ -43,8 +43,8 @@
             <article class="panel">
                 <div class="panel-header">
                     <div>
-                        <h3>Thong ke theo giao vien</h3>
-                        <span>So lop dang duoc phan cong</span>
+                        <h3>Thống kê theo giáo viên</h3>
+                        <span>Số lớp đang được phân công</span>
                     </div>
                 </div>
 
@@ -52,9 +52,9 @@
                     <table class="admin-table">
                         <thead>
                         <tr>
-                            <th>Giao vien</th>
+                            <th>Giáo viên</th>
                             <th>Email</th>
-                            <th>So lop</th>
+                            <th>Số lớp</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -64,7 +64,7 @@
                             <td th:text="${classCountsByTeacher[teacher.id]}"></td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(teachers)}">
-                            <td colspan="3" class="empty-row">Chua co giao vien</td>
+                            <td colspan="3" class="empty-row">Chưa có giáo viên</td>
                         </tr>
                         </tbody>
                     </table>
@@ -74,8 +74,8 @@
             <article class="panel">
                 <div class="panel-header">
                     <div>
-                        <h3>Diem trung binh theo khoa hoc</h3>
-                        <span>Hien thi khi giao vien da nhap diem</span>
+                        <h3>Điểm trung bình theo khóa học</h3>
+                        <span>Hiển thị khi giáo viên đã nhập điểm</span>
                     </div>
                 </div>
 
@@ -83,19 +83,19 @@
                     <table class="admin-table">
                         <thead>
                         <tr>
-                            <th>Khoa hoc</th>
-                            <th>Loai</th>
-                            <th>Diem TB</th>
+                            <th>Khóa học</th>
+                            <th>Loại</th>
+                            <th>Điểm TB</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="course : ${courses}">
                             <td th:text="${course.courseName}"></td>
                             <td th:text="${course.courseType.typeName}"></td>
-                            <td th:text="${averageScoresByCourse[course.id] != null ? #numbers.formatDecimal(averageScoresByCourse[course.id], 1, 2) : 'Chua co diem'}"></td>
+                            <td th:text="${averageScoresByCourse[course.id] != null ? #numbers.formatDecimal(averageScoresByCourse[course.id], 1, 2) : 'Chưa có điểm'}"></td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(courses)}">
-                            <td colspan="3" class="empty-row">Chua co khoa hoc</td>
+                            <td colspan="3" class="empty-row">Chưa có khóa học</td>
                         </tr>
                         </tbody>
                     </table>
@@ -106,8 +106,8 @@
         <section class="panel">
             <div class="panel-header">
                 <div>
-                    <h3>Thong ke theo lop</h3>
-                    <span>Si so va diem trung binh tung lop</span>
+                    <h3>Thống kê theo lớp</h3>
+                    <span>Sĩ số và điểm trung bình từng lớp</span>
                 </div>
             </div>
 
@@ -115,13 +115,13 @@
                 <table class="admin-table">
                     <thead>
                     <tr>
-                        <th>Ma lop</th>
-                        <th>Ten lop</th>
-                        <th>Khoa hoc</th>
-                        <th>Giao vien</th>
-                        <th>Si so</th>
-                        <th>Diem TB</th>
-                        <th>Trang thai</th>
+                        <th>Mã lớp</th>
+                        <th>Tên lớp</th>
+                        <th>Khóa học</th>
+                        <th>Giáo viên</th>
+                        <th>Sĩ số</th>
+                        <th>Điểm TB</th>
+                        <th>Trạng thái</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -131,11 +131,11 @@
                         <td th:text="${courseClass.course.courseName}"></td>
                         <td th:text="${courseClass.teacher.fullName}"></td>
                         <td th:text="${studentCountsByClass[courseClass.id]}"></td>
-                        <td th:text="${averageScoresByClass[courseClass.id] != null ? #numbers.formatDecimal(averageScoresByClass[courseClass.id], 1, 2) : 'Chua co diem'}"></td>
+                        <td th:text="${averageScoresByClass[courseClass.id] != null ? #numbers.formatDecimal(averageScoresByClass[courseClass.id], 1, 2) : 'Chưa có điểm'}"></td>
                         <td><span class="status-badge active" th:text="${courseClass.status}"></span></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(classes)}">
-                        <td colspan="7" class="empty-row">Chua co lop hoc</td>
+                        <td colspan="7" class="empty-row">Chưa có lớp học</td>
                     </tr>
                     </tbody>
                 </table>

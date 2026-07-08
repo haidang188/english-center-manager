@@ -21,8 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/schedules")
@@ -72,7 +75,9 @@ public class AdminScheduleController {
         model.addAttribute("schedules", schedules);
         model.addAttribute("classes", courseClassService.findAll());
         model.addAttribute("rooms", roomService.findAllActive());
-        model.addAttribute("days", enums.DayOfWeek.values());
+        model.addAttribute("days", Arrays.asList(enums.DayOfWeek.values()));
+        model.addAttribute("dayLabels", buildDayLabels());
+        model.addAttribute("scheduleRows", buildScheduleRows(schedules));
         model.addAttribute("selectedClassId", classId);
         model.addAttribute("selectedRoomId", roomId);
         model.addAttribute("selectedDayOfWeek", dayOfWeek);
@@ -107,7 +112,7 @@ public class AdminScheduleController {
         }
 
         classScheduleService.save(toEntity(scheduleForm));
-        redirectAttributes.addFlashAttribute("successMessage", "Them lich hoc thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm lịch học thành công.");
 
         return "redirect:/admin/schedules";
     }
@@ -119,7 +124,7 @@ public class AdminScheduleController {
         ClassSchedule schedule = classScheduleService.findById(id).orElse(null);
 
         if (schedule == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay lich hoc.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy lịch học.");
             return "redirect:/admin/schedules";
         }
 
@@ -137,7 +142,7 @@ public class AdminScheduleController {
                                  Model model,
                                  RedirectAttributes redirectAttributes) {
         if (classScheduleService.findById(id).isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay lich hoc.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy lịch học.");
             return "redirect:/admin/schedules";
         }
 
@@ -150,7 +155,7 @@ public class AdminScheduleController {
         }
 
         classScheduleService.update(id, toEntity(scheduleForm));
-        redirectAttributes.addFlashAttribute("successMessage", "Cap nhat lich hoc thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật lịch học thành công.");
 
         return "redirect:/admin/schedules";
     }
@@ -159,7 +164,7 @@ public class AdminScheduleController {
     public String deleteSchedule(@PathVariable Long id,
                                  RedirectAttributes redirectAttributes) {
         classScheduleService.deleteById(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Xoa lich hoc thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Xóa lịch học thành công.");
 
         return "redirect:/admin/schedules";
     }
@@ -168,7 +173,7 @@ public class AdminScheduleController {
         if (form.getStartTime() != null
                 && form.getEndTime() != null
                 && !form.getEndTime().isAfter(form.getStartTime())) {
-            bindingResult.rejectValue("endTime", "invalid", "Gio ket thuc phai sau gio bat dau");
+            bindingResult.rejectValue("endTime", "invalid", "Giờ kết thúc phải sau giờ bắt đầu");
             return;
         }
 
@@ -188,15 +193,15 @@ public class AdminScheduleController {
         }
 
         if (classScheduleService.existsRoomTimeConflict(room, form.getDayOfWeek(), form.getStartTime(), form.getEndTime(), ignoredId)) {
-            bindingResult.rejectValue("roomId", "conflict", "Phong hoc da co lich trong khoang thoi gian nay");
+            bindingResult.rejectValue("roomId", "conflict", "Phòng học đã có lịch trong khoảng thời gian này");
         }
 
         if (classScheduleService.existsClassTimeConflict(courseClass, form.getDayOfWeek(), form.getStartTime(), form.getEndTime(), ignoredId)) {
-            bindingResult.rejectValue("classId", "conflict", "Lop hoc da co lich trong khoang thoi gian nay");
+            bindingResult.rejectValue("classId", "conflict", "Lớp học đã có lịch trong khoảng thời gian này");
         }
 
         if (classScheduleService.existsTeacherTimeConflict(courseClass.getTeacher(), form.getDayOfWeek(), form.getStartTime(), form.getEndTime(), ignoredId)) {
-            bindingResult.rejectValue("classId", "conflict", "Giao vien cua lop da co lich trong khoang thoi gian nay");
+            bindingResult.rejectValue("classId", "conflict", "Giáo viên của lớp đã có lịch trong khoảng thời gian này");
         }
     }
 
@@ -204,13 +209,14 @@ public class AdminScheduleController {
         model.addAttribute("classes", courseClassService.findAll());
         model.addAttribute("rooms", roomService.findAllActive());
         model.addAttribute("days", enums.DayOfWeek.values());
+        model.addAttribute("dayLabels", buildDayLabels());
     }
 
     private ClassSchedule toEntity(ClassScheduleForm form) {
         CourseClass courseClass = courseClassService.findById(form.getClassId())
-                .orElseThrow(() -> new RuntimeException("Khong tim thay lop hoc"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học"));
         Room room = roomService.findById(form.getRoomId())
-                .orElseThrow(() -> new RuntimeException("Khong tim thay phong hoc"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng học"));
 
         ClassSchedule schedule = new ClassSchedule();
         schedule.setCourseClass(courseClass);
@@ -234,5 +240,64 @@ public class AdminScheduleController {
         form.setNote(schedule.getNote());
 
         return form;
+    }
+
+    private List<ScheduleBoardRow> buildScheduleRows(List<ClassSchedule> schedules) {
+        return schedules.stream()
+                .map(this::buildTimeLabel)
+                .distinct()
+                .sorted()
+                .map(timeLabel -> new ScheduleBoardRow(timeLabel, buildSchedulesByDay(schedules, timeLabel)))
+                .toList();
+    }
+
+    private Map<enums.DayOfWeek, List<ClassSchedule>> buildSchedulesByDay(List<ClassSchedule> schedules, String timeLabel) {
+        Map<enums.DayOfWeek, List<ClassSchedule>> schedulesByDay = new LinkedHashMap<>();
+
+        for (enums.DayOfWeek day : enums.DayOfWeek.values()) {
+            List<ClassSchedule> schedulesInCell = schedules.stream()
+                    .filter(schedule -> schedule.getDayOfWeek() == day)
+                    .filter(schedule -> buildTimeLabel(schedule).equals(timeLabel))
+                    .sorted(Comparator.comparing(schedule -> schedule.getRoom().getRoomCode()))
+                    .toList();
+
+            schedulesByDay.put(day, schedulesInCell);
+        }
+
+        return schedulesByDay;
+    }
+
+    private String buildTimeLabel(ClassSchedule schedule) {
+        return schedule.getStartTime() + " - " + schedule.getEndTime();
+    }
+
+    private Map<enums.DayOfWeek, String> buildDayLabels() {
+        Map<enums.DayOfWeek, String> dayLabels = new LinkedHashMap<>();
+        dayLabels.put(enums.DayOfWeek.MONDAY, "Thứ 2");
+        dayLabels.put(enums.DayOfWeek.TUESDAY, "Thứ 3");
+        dayLabels.put(enums.DayOfWeek.WEDNESDAY, "Thứ 4");
+        dayLabels.put(enums.DayOfWeek.THURSDAY, "Thứ 5");
+        dayLabels.put(enums.DayOfWeek.FRIDAY, "Thứ 6");
+        dayLabels.put(enums.DayOfWeek.SATURDAY, "Thứ 7");
+        dayLabels.put(enums.DayOfWeek.SUNDAY, "Chủ nhật");
+        return dayLabels;
+    }
+
+    public static class ScheduleBoardRow {
+        private final String timeLabel;
+        private final Map<enums.DayOfWeek, List<ClassSchedule>> schedulesByDay;
+
+        public ScheduleBoardRow(String timeLabel, Map<enums.DayOfWeek, List<ClassSchedule>> schedulesByDay) {
+            this.timeLabel = timeLabel;
+            this.schedulesByDay = schedulesByDay;
+        }
+
+        public String getTimeLabel() {
+            return timeLabel;
+        }
+
+        public Map<enums.DayOfWeek, List<ClassSchedule>> getSchedulesByDay() {
+            return schedulesByDay;
+        }
     }
 }
