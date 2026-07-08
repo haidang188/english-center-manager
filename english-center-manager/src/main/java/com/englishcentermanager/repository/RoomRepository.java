@@ -11,7 +11,9 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     boolean existsByRoomCode(String roomCode);
 
+    boolean existsByRoomCodeAndIdNot(String roomCode, Long id);
+
     List<Room> findByActiveTrue();
 
-    List<Room> findByRoomNameContainingIgnoreCase(String keyword);
+    List<Room> findByRoomCodeContainingIgnoreCaseOrRoomNameContainingIgnoreCase(String roomCode, String roomName);
 }

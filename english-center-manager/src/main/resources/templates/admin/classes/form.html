@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${isEdit} ? 'Cap nhat lop hoc' : 'Them lop hoc'"></title>
+    <title th:text="${isEdit} ? 'Cập nhật lớp học' : 'Thêm lớp học'"></title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -16,11 +16,11 @@
         <section class="panel form-panel">
             <div class="panel-header">
                 <div>
-                    <h3 th:text="${isEdit} ? 'Cap nhat lop hoc' : 'Them lop hoc'"></h3>
-                    <span>Lop hoc la lop mo thuc te gan voi mot khoa hoc va mot giao vien</span>
+                    <h3 th:text="${isEdit} ? 'Cập nhật lớp học' : 'Thêm lớp học'"></h3>
+                    <span>Lớp học là lớp mở thực tế gắn với một khóa học và một giáo viên</span>
                 </div>
 
-                <a th:href="@{/admin/classes}" class="secondary-link">Quay lai</a>
+                <a th:href="@{/admin/classes}" class="secondary-link">Quay lại</a>
             </div>
 
             <form th:object="${classForm}"
@@ -32,21 +32,21 @@
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Ma lop</label>
+                        <label>Mã lớp</label>
                         <input type="text" th:field="*{classCode}" placeholder="TOEIC2_BASIC_C01">
                         <p class="field-error" th:if="${#fields.hasErrors('classCode')}" th:errors="*{classCode}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Ten lop</label>
-                        <input type="text" th:field="*{className}" placeholder="TOEIC 2 ky nang co ban - Lop 01">
+                        <label>Tên lớp</label>
+                        <input type="text" th:field="*{className}" placeholder="TOEIC 2 kỹ năng cơ bản - Lớp 01">
                         <p class="field-error" th:if="${#fields.hasErrors('className')}" th:errors="*{className}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Khoa hoc</label>
+                        <label>Khóa học</label>
                         <select th:field="*{courseId}">
-                            <option value="">-- Chon khoa hoc --</option>
+                            <option value="">-- Chọn khóa học --</option>
                             <option th:each="course : ${courses}"
                                     th:value="${course.id}"
                                     th:text="${course.courseName}">
@@ -56,7 +56,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Giao vien</label>
+                        <label>Giáo viên</label>
                         <select th:field="*{teacherId}">
                             <option value="">-- Chon giao vien --</option>
                             <option th:each="teacher : ${teachers}"
@@ -79,7 +79,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Trang thai</label>
+                        <label>Trạng thái</label>
                         <select th:field="*{status}">
                             <option th:each="status : ${statuses}"
                                     th:value="${status}"
@@ -91,12 +91,12 @@
                 </div>
 
                 <div th:if="${#lists.isEmpty(teachers)}" class="flash-message error">
-                    Chua co giao vien. Hay tao tai khoan role TEACHER truoc khi tao lop.
+                    Chưa có giáo viên. Hãy tạo tài khoản role TEACHER trước khi tạo lớp.
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="action-button">Luu lop hoc</button>
-                    <a th:href="@{/admin/classes}" class="cancel-button">Huy</a>
+                    <button type="submit" class="action-button">Lưu lớp học</button>
+                    <a th:href="@{/admin/classes}" class="cancel-button">Hủy</a>
                 </div>
             </form>
         </section>

@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Quan ly khoa hoc</title>
+    <title>Quản lý khóa học</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -15,20 +15,20 @@
         <section class="content-panel">
             <div class="page-header">
                 <div>
-                    <h1>Quan ly khoa hoc</h1>
-                    <p>Quan ly danh sach khoa hoc va cau hinh diem</p>
+                    <h1>Quản lý khóa học</h1>
+                    <p>Quản lý danh sách khóa học và cấu hình điểm</p>
                 </div>
-                <a th:href="@{/admin/courses/create}" class="btn btn-primary">+ Them khoa hoc</a>
+                <a th:href="@{/admin/courses/create}" class="btn btn-primary">+ Thêm khóa học</a>
             </div>
 
             <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
             <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
             <form th:action="@{/admin/courses}" method="get" class="filter-bar">
-                <input type="text" name="keyword" placeholder="Tim theo ma hoac ten khoa hoc" th:value="${keyword}">
+                <input type="text" name="keyword" placeholder="Tìm theo mã hoặc tên khóa học" th:value="${keyword}">
 
                 <select name="courseTypeId">
-                    <option value="">Tat ca loai khoa hoc</option>
+                    <option value="">Tất cả loại khóa học</option>
                     <option th:each="type : ${courseTypes}"
                             th:value="${type.id}"
                             th:text="${type.typeName}"
@@ -37,12 +37,12 @@
                 </select>
 
                 <select name="active">
-                    <option value="">Tat ca trang thai</option>
+                    <option value="">Tất cả trạng thái</option>
                     <option value="true" th:selected="${active != null and active == true}">Dang su dung</option>
                     <option value="false" th:selected="${active != null and active == false}">Ngung su dung</option>
                 </select>
 
-                <button type="submit" class="btn btn-secondary">Loc</button>
+                <button type="submit" class="btn btn-secondary">Lọc</button>
                 <a th:href="@{/admin/courses}" class="btn btn-light">Lam moi</a>
             </form>
 
@@ -50,10 +50,10 @@
                 <table class="admin-table">
                     <thead>
                     <tr>
-                        <th>Ma khoa hoc</th>
-                        <th>Ten khoa hoc</th>
+                        <th>Mã khóa học</th>
+                        <th>Tên khóa học</th>
                         <th>Loai</th>
-                        <th>Trang thai</th>
+                        <th>Trạng thái</th>
                         <th>Mo ta</th>
                         <th>Thao tac</th>
                     </tr>
@@ -69,8 +69,8 @@
                         </td>
                         <td th:text="${course.description}"></td>
                         <td class="actions">
-                            <a th:href="@{/admin/courses/{id}/edit(id=${course.id})}" class="btn btn-small">Sua</a>
-                            <a th:href="@{/admin/courses/{id}/score-components(id=${course.id})}" class="btn btn-small btn-secondary">Diem</a>
+                            <a th:href="@{/admin/courses/{id}/edit(id=${course.id})}" class="btn btn-small">Sửa</a>
+                            <a th:href="@{/admin/courses/{id}/score-components(id=${course.id})}" class="btn btn-small btn-secondary">Điểm</a>
 
                             <form th:action="@{/admin/courses/{id}/toggle(id=${course.id})}" method="post" class="inline-form">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -84,7 +84,7 @@
                     </tr>
 
                     <tr th:if="${coursePage.content.isEmpty()}">
-                        <td colspan="6" class="empty-text">Chua co khoa hoc nao</td>
+                        <td colspan="6" class="empty-text">Chưa có khóa học nào</td>
                     </tr>
                     </tbody>
                 </table>

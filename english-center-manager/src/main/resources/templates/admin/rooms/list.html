@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý phòng học</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{admin/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Quản lý phòng học</h3>
+                    <span>Xem, thêm, chỉnh sửa và ngưng sử dụng phòng học trong trung tâm.</span>
+                </div>
+
+                <a th:href="@{/admin/rooms/create}" class="action-button">Thêm phòng học</a>
+            </div>
+
+            <div th:if="${successMessage}" class="flash-message success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="flash-message error" th:text="${errorMessage}"></div>
+
+            <form th:action="@{/admin/rooms}" method="get" class="filter-form advanced">
+                <input type="text"
+                       name="keyword"
+                       th:value="${keyword}"
+                       placeholder="Tìm mã phòng hoặc tên phòng...">
+
+                <select name="active">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="true" th:selected="${active != null and active == true}">Đang sử dụng</option>
+                    <option value="false" th:selected="${active != null and active == false}">Ngưng sử dụng</option>
+                </select>
+
+                <button type="submit">Lọc</button>
+                <a th:href="@{/admin/rooms}" class="cancel-button compact">Xóa lọc</a>
+            </form>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Mã phòng</th>
+                        <th>Tên phòng</th>
+                        <th>Sức chứa</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="room : ${rooms}">
+                        <td><strong th:text="${room.roomCode}"></strong></td>
+                        <td th:text="${room.roomName}"></td>
+                        <td>
+                            <span th:text="${room.capacity}"></span>
+                            <small>học viên</small>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${room.active} ? ' active' : ' inactive'"
+                                  th:text="${room.active} ? 'Đang sử dụng' : 'Ngưng sử dụng'">
+                            </span>
+                        </td>
+                        <td class="table-actions">
+                            <a th:href="@{/admin/rooms/{id}/edit(id=${room.id})}" class="small-button edit">Sửa</a>
+
+                            <form th:action="@{/admin/rooms/{id}/toggle(id=${room.id})}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit"
+                                        class="small-button"
+                                        th:classappend="${room.active} ? ' danger' : ' success'"
+                                        th:text="${room.active} ? 'Ngưng' : 'Kích hoạt'">
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(rooms)}">
+                        <td colspan="5" class="empty-row">Không có phòng học phù hợp.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" th:if="${roomPage != null and roomPage.totalPages > 1}">
+                <a th:classappend="${roomPage.first} ? ' disabled'"
+                   th:href="@{/admin/rooms(page=${roomPage.number - 1}, keyword=${keyword}, active=${active})}">
+                    Trước
+                </a>
+
+                <span th:each="pageNumber : ${#numbers.sequence(0, roomPage.totalPages - 1)}">
+                    <a th:href="@{/admin/rooms(page=${pageNumber}, keyword=${keyword}, active=${active})}"
+                       th:classappend="${pageNumber == roomPage.number} ? ' active'"
+                       th:text="${pageNumber + 1}">
+                    </a>
+                </span>
+
+                <a th:classappend="${roomPage.last} ? ' disabled'"
+                   th:href="@{/admin/rooms(page=${roomPage.number + 1}, keyword=${keyword}, active=${active})}">
+                    Sau
+                </a>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

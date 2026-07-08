@@ -1,6 +1,7 @@
 package com.englishcentermanager.repository;
 
 import com.englishcentermanager.entity.ClassStudent;
+import com.englishcentermanager.entity.CourseClass;
 import com.englishcentermanager.entity.enums;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,8 @@ public interface ClassStudentRepository extends JpaRepository<ClassStudent, Long
     );
 
     long countByCourseClassId(Long classId);
+
+    long countByCourseClass(CourseClass courseClass);
 
     List<ClassStudent> findByCourseClassIdAndStatus(Long classId, enums.StudentClassStatus status);
 }
