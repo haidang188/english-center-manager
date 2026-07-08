@@ -1,153 +1,190 @@
 package com.englishcentermanager.controller;
 
+import com.englishcentermanager.dto.AddStudentForm;
+import com.englishcentermanager.dto.TransferStudentForm;
+import com.englishcentermanager.dto.UpdateStudentStatusForm;
 import com.englishcentermanager.entity.ClassStudent;
-import com.englishcentermanager.entity.CourseClass;
-import com.englishcentermanager.entity.Role;
 import com.englishcentermanager.entity.User;
 import com.englishcentermanager.entity.enums;
-import com.englishcentermanager.service.CourseClassService;
-import com.englishcentermanager.service.RoleService;
 import com.englishcentermanager.service.StaffClassStudentService;
-import com.englishcentermanager.service.UserService;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.Authentication;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-
 @Controller
+@RequestMapping("/staff")
+@RequiredArgsConstructor
 public class StaffClassStudentController {
     private final StaffClassStudentService staffClassStudentService;
-    private final CourseClassService courseClassService;
-    private final UserService userService;
-    private final RoleService roleService;
 
-    public StaffClassStudentController(StaffClassStudentService staffClassStudentService,
-                                       CourseClassService courseClassService,
-                                       UserService userService,
-                                       RoleService roleService) {
-        this.staffClassStudentService = staffClassStudentService;
-        this.courseClassService = courseClassService;
-        this.userService = userService;
-        this.roleService = roleService;
-    }
-
-    @GetMapping("/staff/class-students")
-    public String classStudentsShortcut(@RequestParam(required = false) Long classId) {
-        if (classId == null) {
-            return "redirect:/staff/classes";
-        }
-
-        return "redirect:/staff/classes/" + classId + "/students";
-    }
-
-    @GetMapping("/staff/classes/{classId}/students")
-    public String listStudents(@PathVariable Long classId,
+    @GetMapping("/classes/{classId}/students")
+    public String viewStudents(@PathVariable Long classId,
                                @RequestParam(required = false) String keyword,
                                @RequestParam(required = false) enums.StudentClassStatus status,
-                               Model model,
-                               RedirectAttributes redirectAttributes) {
-        CourseClass courseClass = courseClassService.findById(classId).orElse(null);
-        if (courseClass == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay lop hoc.");
-            return "redirect:/staff/classes";
-        }
+                               @PageableDefault(size = 10) Pageable pageable,
+                               Model model) {
+        Page<ClassStudent> studentsPage = staffClassStudentService.getStudentsByClass(classId, keyword, status, pageable);
 
-        List<ClassStudent> classStudents = staffClassStudentService.searchInClass(classId, keyword, status);
-
-        model.addAttribute("courseClass", courseClass);
-        model.addAttribute("classStudents", classStudents);
-        model.addAttribute("students", findActiveStudents());
-        model.addAttribute("classes", courseClassService.findAll().stream()
-                .filter(item -> !item.getId().equals(classId))
-                .sorted(Comparator.comparing(CourseClass::getClassName))
-                .toList());
-        model.addAttribute("statuses", enums.StudentClassStatus.values());
+        model.addAttribute("courseClass", staffClassStudentService.getClassById(classId));
+        model.addAttribute("students", studentsPage.getContent());
+        model.addAttribute("studentsPage", studentsPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedStatus", status);
-        model.addAttribute("today", LocalDate.now());
+        model.addAttribute("studentStatuses", enums.StudentClassStatus.values());
+
 
         return "staff/class-students";
+
     }
 
-    @PostMapping("/staff/classes/{classId}/students")
+    @GetMapping("/classes/{classId}/students/add")
+    public String showAddStudentForm(@PathVariable Long classId,
+                                     @RequestParam(required = false) String keyword,
+                                     @PageableDefault(size = 10) Pageable pageable,
+                                     Model model) {
+        Page<User> studentsPage = staffClassStudentService.getStudents(keyword, pageable);
+
+        model.addAttribute("classId", classId);
+        model.addAttribute("courseClass", staffClassStudentService.getClassById(classId));
+        model.addAttribute("students", studentsPage.getContent());
+        model.addAttribute("studentsPage", studentsPage);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("addStudentForm", new AddStudentForm());
+
+        return "staff/add-student";
+    }
+
+    @PostMapping("/classes/{classId}/students/add")
     public String addStudent(@PathVariable Long classId,
                              @RequestParam Long studentId,
-                             @RequestParam(required = false)
-                             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate joinedAt,
-                             Authentication authentication,
                              RedirectAttributes redirectAttributes) {
         try {
-            staffClassStudentService.addStudentToClass(classId, studentId, joinedAt, currentUser(authentication));
-            redirectAttributes.addFlashAttribute("successMessage", "Them hoc vien vao lop thanh cong.");
+            staffClassStudentService.addStudentToClass(classId, studentId);
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm học viên thành công");
+            return redirectToStudents(classId);
         } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/staff/classes/" + classId + "/students/add";
         }
-
-        return "redirect:/staff/classes/" + classId + "/students";
     }
 
-    @PostMapping("/staff/classes/{classId}/students/{classStudentId}/status")
-    public String updateStatus(@PathVariable Long classId,
-                               @PathVariable Long classStudentId,
-                               @RequestParam enums.StudentClassStatus status,
-                               @RequestParam(required = false) String note,
-                               Authentication authentication,
-                               RedirectAttributes redirectAttributes) {
+    @GetMapping("/class-students/{id}/status")
+    public String showStatusForm(@PathVariable Long id, Model model) {
+        ClassStudent classStudent = staffClassStudentService.getClassStudentById(id);
+        UpdateStudentStatusForm form = new UpdateStudentStatusForm();
+        form.setClassStudentId(id);
+        form.setStatus(classStudent.getStatus());
+
+        populateStatusModel(model, classStudent, form);
+        return "staff/update-student-status";
+    }
+
+    @PostMapping("/class-students/{id}/status")
+    public String updateStatusById(@PathVariable Long id,
+                                   @Valid @ModelAttribute("updateStudentStatusForm") UpdateStudentStatusForm form,
+                                   BindingResult bindingResult,
+                                   Model model,
+                                   RedirectAttributes redirectAttributes) {
+        ClassStudent classStudent = staffClassStudentService.getClassStudentById(id);
+        form.setClassStudentId(id);
+
+        if (bindingResult.hasErrors()) {
+            populateStatusModel(model, classStudent, form);
+            return "staff/update-student-status";
+        }
+
         try {
-            staffClassStudentService.updateStatus(classStudentId, status, currentUser(authentication), note);
-            redirectAttributes.addFlashAttribute("successMessage", "Cap nhat trang thai hoc vien thanh cong.");
+            staffClassStudentService.updateStudentStatus(id, form.getStatus(), form.getNote());
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công");
         } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
 
-        return "redirect:/staff/classes/" + classId + "/students";
+        return redirectToStudents(classStudent.getCourseClass().getId());
     }
 
-    @PostMapping("/staff/classes/{classId}/students/{classStudentId}/transfer")
-    public String transferStudent(@PathVariable Long classId,
-                                  @PathVariable Long classStudentId,
-                                  @RequestParam Long targetClassId,
-                                  @RequestParam(required = false) String note,
-                                  Authentication authentication,
+    @PostMapping("/class-students/status")
+    public String updateStatus(@Valid @ModelAttribute UpdateStudentStatusForm form, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        ClassStudent classStudent = form.getClassStudentId() == null
+                ? null
+                : staffClassStudentService.getClassStudentById(form.getClassStudentId());
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Dữ liệu không hợp lệ");
+            return classStudent == null ? "redirect:/staff/classes" : redirectToStudents(classStudent.getCourseClass().getId());
+        }
+
+        try {
+            staffClassStudentService.updateStudentStatus(form.getClassStudentId(), form.getStatus(), form.getNote());
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+
+        return classStudent == null ? "redirect:/staff/classes" : redirectToStudents(classStudent.getCourseClass().getId());
+    }
+
+    @GetMapping("/class-students/transfer")
+    public String showTransferForm(@RequestParam Long studentId, @RequestParam Long fromClassId, Model model) {
+        TransferStudentForm form = new TransferStudentForm();
+        form.setStudentId(studentId);
+        form.setFromClassId(fromClassId);
+
+        populateTransferModel(model, studentId, fromClassId, form);
+        return "staff/transfer-student";
+
+    }
+
+    @PostMapping("/class-students/transfer")
+    public String transferStudent(@Valid @ModelAttribute("transferStudentForm") TransferStudentForm form,
+                                  BindingResult bindingResult,
+                                  Model model,
                                   RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            populateTransferModel(model, form.getStudentId(), form.getFromClassId(), form);
+            return "staff/transfer-student";
+        }
+
         try {
-            staffClassStudentService.transferStudent(classStudentId, targetClassId, currentUser(authentication), note);
-            redirectAttributes.addFlashAttribute("successMessage", "Chuyen hoc vien sang lop moi thanh cong.");
+            staffClassStudentService.transferStudent(
+                    form.getStudentId(),
+                    form.getFromClassId(),
+                    form.getToClassId(),
+                    form.getNote()
+            );
+            redirectAttributes.addFlashAttribute("successMessage", "Chuyển lớp thành công");
+            return redirectToStudents(form.getToClassId());
         } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/staff/class-students/transfer?studentId="
+                    + form.getStudentId()
+                    + "&fromClassId="
+                    + form.getFromClassId();
         }
+    }
 
+    private void populateStatusModel(Model model, ClassStudent classStudent, UpdateStudentStatusForm form) {
+        model.addAttribute("classStudent", classStudent);
+        model.addAttribute("updateStudentStatusForm", form);
+        model.addAttribute("studentStatuses", enums.StudentClassStatus.values());
+    }
+
+    private void populateTransferModel(Model model, Long studentId, Long fromClassId, TransferStudentForm form) {
+        model.addAttribute("student", staffClassStudentService.getStudentById(studentId));
+        model.addAttribute("fromClass", staffClassStudentService.getClassById(fromClassId));
+        model.addAttribute("fromClassId", fromClassId);
+        model.addAttribute("classes", staffClassStudentService.getAllClasses());
+        model.addAttribute("transferStudentForm", form);
+    }
+
+    private String redirectToStudents(Long classId) {
         return "redirect:/staff/classes/" + classId + "/students";
-    }
-
-    private List<User> findActiveStudents() {
-        return roleService.findByName("STUDENT")
-                .map(this::findActiveStudentsByRole)
-                .orElse(List.of());
-    }
-
-    private List<User> findActiveStudentsByRole(Role role) {
-        return userService.findByRole(role).stream()
-                .filter(user -> user.getStatus() == enums.UserStatus.ACTIVE)
-                .sorted(Comparator.comparing(User::getFullName))
-                .toList();
-    }
-
-    private User currentUser(Authentication authentication) {
-        if (authentication == null || authentication.getName() == null) {
-            throw new RuntimeException("Khong xac dinh duoc tai khoan dang nhap");
-        }
-
-        return userService.findByEmail(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Khong tim thay tai khoan dang nhap"));
     }
 }

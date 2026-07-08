@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-<aside class="admin-sidebar" th:fragment="sidebar">
+<aside class="admin-sidebar staff-sidebar" th:fragment="sidebar">
     <div class="brand">
-        <div class="brand-logo">EC</div>
+        <div class="brand-logo">GV</div>
         <div>
             <h2>English Center</h2>
             <p>Staff Portal</p>
@@ -15,31 +15,23 @@
             <span class="menu-icon">D</span>
             <span>Dashboard</span>
         </a>
-
         <a th:href="@{/staff/classes}" class="menu-item">
             <span class="menu-icon">L</span>
-            <span>Lop hoc</span>
+            <span>Quản lý lớp học</span>
         </a>
-
-        <a th:href="@{/staff/class-students}" class="menu-item">
-            <span class="menu-icon">H</span>
-            <span>Hoc vien trong lop</span>
-        </a>
-
-        <a th:href="@{/staff/scores}" class="menu-item">
-            <span class="menu-icon">S</span>
-            <span>Diem</span>
-        </a>
-
         <a th:href="@{/staff/tuition-batches}" class="menu-item">
             <span class="menu-icon">$</span>
-            <span>Hoc phi</span>
+            <span>Quản lý học phí</span>
+        </a>
+        <a th:href="@{/staff/scores}" class="menu-item">
+            <span class="menu-icon">Đ</span>
+            <span>Nhập điểm</span>
         </a>
     </nav>
 
     <div class="sidebar-footer">
-        <p>Signed in as</p>
-        <strong>Staff</strong>
+        <p>Đăng nhập với vai trò</p>
+        <strong>Giáo vụ</strong>
     </div>
 </aside>
 </body>

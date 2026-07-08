@@ -9,8 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 public class SecurityConfig {
@@ -46,6 +46,16 @@ public class SecurityConfig {
                 return;
             }
 
+            if (hasRole(authentication, "ROLE_TEACHER")) {
+                response.sendRedirect("/teacher");
+                return;
+            }
+
+            if (hasRole(authentication, "ROLE_STUDENT")) {
+                response.sendRedirect("/student");
+                return;
+            }
+
             response.sendRedirect("/home");
         };
     }
@@ -57,16 +67,43 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
+
         http
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/images/**", "/js/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/staff", "/staff/**").authenticated()
-                        .anyRequest().authenticated()
+                        .requestMatchers(
+                                "/",
+                                "/home",
+                                "/login",
+                                "/register",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**"
+                        ).permitAll()
+
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers("/staff", "/staff/**")
+                        .hasAnyRole("STAFF", "GIAO_VU")
+
+                        .requestMatchers("/giaovu", "/giaovu/**")
+                        .hasRole("GIAO_VU")
+
+                        .requestMatchers("/teacher", "/teacher/**")
+                        .hasRole("TEACHER")
+
+                        .requestMatchers("/student", "/student/**")
+                        .hasRole("STUDENT")
+
+                        .anyRequest()
+                        .authenticated()
                 )
+
                 .formLogin(form -> form
+
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .usernameParameter("email")
@@ -78,6 +115,8 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
 

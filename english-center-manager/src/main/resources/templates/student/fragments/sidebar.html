@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar student-sidebar" th:fragment="sidebar">
+    <div class="brand">
+        <div class="brand-logo">HV</div>
+        <div>
+            <h2>English Center</h2>
+            <p>Student Portal</p>
+        </div>
+    </div>
+
+    <nav class="sidebar-menu">
+        <a th:href="@{/student}" class="menu-item">
+            <span class="menu-icon">D</span>
+            <span>Dashboard</span>
+        </a>
+        <a th:href="@{/student/classes}" class="menu-item">
+            <span class="menu-icon">L</span>
+            <span>Lớp học của tôi</span>
+        </a>
+        <a th:href="@{/student/scores}" class="menu-item">
+            <span class="menu-icon">Đ</span>
+            <span>Điểm số</span>
+        </a>
+        <a th:href="@{/student/tuition}" class="menu-item">
+            <span class="menu-icon">$</span>
+            <span>Học phí</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <p>Đăng nhập với vai trò</p>
+        <strong>Học viên</strong>
+    </div>
+</aside>
+</body>
+</html>

@@ -38,7 +38,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room save(Room room) {
-        room.setActive(true);
+        room.setActive(room.getActive() != null ? room.getActive() : true);
         room.setCreatedAt(LocalDateTime.now());
         room.setUpdatedAt(LocalDateTime.now());
         return roomRepository.save(room);
@@ -47,12 +47,12 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Room update(Long id, Room room) {
         Room existingRoom = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay phong hoc"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng học"));
 
         existingRoom.setRoomCode(room.getRoomCode());
         existingRoom.setRoomName(room.getRoomName());
         existingRoom.setCapacity(room.getCapacity());
-        existingRoom.setActive(room.getActive());
+        existingRoom.setActive(room.getActive() != null ? room.getActive() : true);
         existingRoom.setUpdatedAt(LocalDateTime.now());
 
         return roomRepository.save(existingRoom);
@@ -61,7 +61,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public void activate(Long id) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay phong hoc"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng học"));
 
         room.setActive(true);
         room.setUpdatedAt(LocalDateTime.now());
@@ -71,7 +71,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public void deactivate(Long id) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay phong hoc"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng học"));
 
         room.setActive(false);
         room.setUpdatedAt(LocalDateTime.now());
@@ -84,11 +84,17 @@ public class RoomServiceImpl implements RoomService {
             return roomRepository.findAll();
         }
 
-        return roomRepository.findByRoomNameContainingIgnoreCase(keyword.trim());
+        String searchValue = keyword.trim();
+        return roomRepository.findByRoomCodeContainingIgnoreCaseOrRoomNameContainingIgnoreCase(searchValue, searchValue);
     }
 
     @Override
     public boolean existsByRoomCode(String roomCode) {
         return roomRepository.existsByRoomCode(roomCode);
+    }
+
+    @Override
+    public boolean existsByRoomCodeAndIdNot(String roomCode, Long id) {
+        return roomRepository.existsByRoomCodeAndIdNot(roomCode, id);
     }
 }

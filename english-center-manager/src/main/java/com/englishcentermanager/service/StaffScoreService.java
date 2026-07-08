@@ -15,6 +15,8 @@ public interface StaffScoreService {
 
     Optional<ExamSession> findLatestSession(CourseClass courseClass);
 
+    ExamSession findOrCreateDefaultSession(Long classId, User createdBy);
+
     ExamSession createSession(Long classId, ExamSessionForm form, User createdBy);
 
     StaffScoreBoard buildScoreBoard(Long classId, Long examSessionId);

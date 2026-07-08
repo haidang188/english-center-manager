@@ -35,4 +35,15 @@ public interface ScoreEntryRepository extends JpaRepository<ScoreEntry, Long> {
     Optional<ScoreEntry> findByExamSessionAndClassStudentAndScoreComponent(ExamSession examSession,
                                                                            ClassStudent classStudent,
                                                                            CourseScoreComponent scoreComponent);
+
+    @Query("""
+            select entry
+            from ScoreEntry entry
+            where entry.classStudent = :classStudent
+            order by entry.examSession.examDate desc,
+                     entry.examSession.id desc,
+                     entry.scoreComponent.displayOrder asc,
+                     entry.scoreComponent.id asc
+            """)
+    List<ScoreEntry> findByClassStudentForDisplay(@Param("classStudent") ClassStudent classStudent);
 }

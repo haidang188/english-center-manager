@@ -97,7 +97,7 @@ public class AdminCourseController {
     public String showCreateForm(Model model) {
         model.addAttribute("courseForm", new CourseForm());
         model.addAttribute("courseTypes", courseTypeService.findAllActive());
-        model.addAttribute("title", "Them khoa hoc");
+        model.addAttribute("title", "Thêm khóa học");
         model.addAttribute("actionUrl", "/admin/courses/create");
 
         return "admin/courses/form";
@@ -111,12 +111,12 @@ public class AdminCourseController {
             RedirectAttributes redirectAttributes
     ) {
         if (courseService.existsByCourseCode(courseForm.getCourseCode())) {
-            bindingResult.rejectValue("courseCode", "duplicate", "Ma khoa hoc da ton tai");
+            bindingResult.rejectValue("courseCode", "duplicate", "Mã khóa học đã tồn tại");
         }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("courseTypes", courseTypeService.findAllActive());
-            model.addAttribute("title", "Them khoa hoc");
+            model.addAttribute("title", "Thêm khóa học");
             model.addAttribute("actionUrl", "/admin/courses/create");
             return "admin/courses/form";
         }
@@ -124,7 +124,7 @@ public class AdminCourseController {
         Course course = buildCourseFromForm(courseForm);
         courseService.save(course);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Them khoa hoc thanh cong");
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm khóa học thành công");
         return "redirect:/admin/courses";
     }
 
@@ -137,13 +137,13 @@ public class AdminCourseController {
         Course course = courseService.findById(id).orElse(null);
 
         if (course == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay khoa hoc");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khóa học");
             return "redirect:/admin/courses";
         }
 
         model.addAttribute("courseForm", buildFormFromCourse(course));
         model.addAttribute("courseTypes", courseTypeService.findAll());
-        model.addAttribute("title", "Chinh sua khoa hoc");
+        model.addAttribute("title", "Chỉnh sửa khóa học");
         model.addAttribute("actionUrl", "/admin/courses/" + id + "/edit");
 
         return "admin/courses/form";
@@ -160,18 +160,18 @@ public class AdminCourseController {
         Course existingCourse = courseService.findById(id).orElse(null);
 
         if (existingCourse == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay khoa hoc");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khóa học");
             return "redirect:/admin/courses";
         }
 
         if (!existingCourse.getCourseCode().equalsIgnoreCase(courseForm.getCourseCode())
                 && courseService.existsByCourseCode(courseForm.getCourseCode())) {
-            bindingResult.rejectValue("courseCode", "duplicate", "Ma khoa hoc da ton tai");
+            bindingResult.rejectValue("courseCode", "duplicate", "Mã khóa học đã tồn tại");
         }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("courseTypes", courseTypeService.findAll());
-            model.addAttribute("title", "Chinh sua khoa hoc");
+            model.addAttribute("title", "Chỉnh sửa khóa học");
             model.addAttribute("actionUrl", "/admin/courses/" + id + "/edit");
             return "admin/courses/form";
         }
@@ -179,7 +179,7 @@ public class AdminCourseController {
         Course course = buildCourseFromForm(courseForm);
         courseService.update(id, course);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Cap nhat khoa hoc thanh cong");
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật khóa học thành công");
         return "redirect:/admin/courses";
     }
 
@@ -191,16 +191,16 @@ public class AdminCourseController {
         Course course = courseService.findById(id).orElse(null);
 
         if (course == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay khoa hoc");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khóa học");
             return "redirect:/admin/courses";
         }
 
         if (Boolean.TRUE.equals(course.getActive())) {
             courseService.deactivate(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Da ngung su dung khoa hoc");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã ngưng sử dụng khóa học");
         } else {
             courseService.activate(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Da kich hoat khoa hoc");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã kích hoạt khóa học");
         }
 
         return "redirect:/admin/courses";
@@ -215,7 +215,7 @@ public class AdminCourseController {
         Course course = courseService.findById(courseId).orElse(null);
 
         if (course == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay khoa hoc");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khóa học");
             return "redirect:/admin/courses";
         }
 
@@ -245,13 +245,13 @@ public class AdminCourseController {
         Course course = courseService.findById(courseId).orElse(null);
 
         if (course == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay khoa hoc");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khóa học");
             return "redirect:/admin/courses";
         }
 
         model.addAttribute("course", course);
         model.addAttribute("scoreComponentForm", new CourseScoreComponentForm());
-        model.addAttribute("title", "Them thanh phan diem");
+        model.addAttribute("title", "Thêm thành phần điểm");
         model.addAttribute("actionUrl", "/admin/courses/" + courseId + "/score-components/create");
 
         return "admin/courses/score-component-form";
@@ -268,21 +268,21 @@ public class AdminCourseController {
         Course course = courseService.findById(courseId).orElse(null);
 
         if (course == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay khoa hoc");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khóa học");
             return "redirect:/admin/courses";
         }
 
         if (courseScoreComponentService.existsByCourseAndComponentCode(course, form.getComponentCode())) {
-            bindingResult.rejectValue("componentCode", "duplicate", "Ma thanh phan diem da ton tai trong khoa hoc nay");
+            bindingResult.rejectValue("componentCode", "duplicate", "Mã thành phần điểm đã tồn tại trong khóa học này");
         }
 
         if (isTotalWeightOver100(course, form.getWeightPercent(), form.getCalculated(), null)) {
-            bindingResult.rejectValue("weightPercent", "invalid", "Tong ty trong diem khong duoc vuot qua 100%");
+            bindingResult.rejectValue("weightPercent", "invalid", "Tổng tỷ trọng điểm không được vượt quá 100%");
         }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("course", course);
-            model.addAttribute("title", "Them thanh phan diem");
+            model.addAttribute("title", "Thêm thành phần điểm");
             model.addAttribute("actionUrl", "/admin/courses/" + courseId + "/score-components/create");
             return "admin/courses/score-component-form";
         }
@@ -290,7 +290,7 @@ public class AdminCourseController {
         CourseScoreComponent component = buildScoreComponentFromForm(form, course);
         courseScoreComponentService.save(component);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Them thanh phan diem thanh cong");
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm thành phần điểm thành công");
         return "redirect:/admin/courses/" + courseId + "/score-components";
     }
 
@@ -305,13 +305,13 @@ public class AdminCourseController {
         CourseScoreComponent component = courseScoreComponentService.findById(componentId).orElse(null);
 
         if (course == null || component == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay du lieu cau hinh diem");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy dữ liệu cấu hình điểm");
             return "redirect:/admin/courses";
         }
 
         model.addAttribute("course", course);
         model.addAttribute("scoreComponentForm", buildFormFromScoreComponent(component));
-        model.addAttribute("title", "Chinh sua thanh phan diem");
+        model.addAttribute("title", "Chỉnh sửa thành phần điểm");
         model.addAttribute("actionUrl", "/admin/courses/" + courseId + "/score-components/" + componentId + "/edit");
 
         return "admin/courses/score-component-form";
@@ -330,22 +330,22 @@ public class AdminCourseController {
         CourseScoreComponent existingComponent = courseScoreComponentService.findById(componentId).orElse(null);
 
         if (course == null || existingComponent == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay du lieu cau hinh diem");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy dữ liệu cấu hình điểm");
             return "redirect:/admin/courses";
         }
 
         if (!existingComponent.getComponentCode().equalsIgnoreCase(form.getComponentCode())
                 && courseScoreComponentService.existsByCourseAndComponentCode(course, form.getComponentCode())) {
-            bindingResult.rejectValue("componentCode", "duplicate", "Ma thanh phan diem da ton tai trong khoa hoc nay");
+            bindingResult.rejectValue("componentCode", "duplicate", "Mã thành phần điểm đã tồn tại trong khóa học này");
         }
 
         if (isTotalWeightOver100(course, form.getWeightPercent(), form.getCalculated(), componentId)) {
-            bindingResult.rejectValue("weightPercent", "invalid", "Tong ty trong diem khong duoc vuot qua 100%");
+            bindingResult.rejectValue("weightPercent", "invalid", "Tổng tỷ trọng điểm không được vượt quá 100%");
         }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("course", course);
-            model.addAttribute("title", "Chinh sua thanh phan diem");
+            model.addAttribute("title", "Chỉnh sửa thành phần điểm");
             model.addAttribute("actionUrl", "/admin/courses/" + courseId + "/score-components/" + componentId + "/edit");
             return "admin/courses/score-component-form";
         }
@@ -353,7 +353,7 @@ public class AdminCourseController {
         CourseScoreComponent component = buildScoreComponentFromForm(form, course);
         courseScoreComponentService.update(componentId, component);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Cap nhat thanh phan diem thanh cong");
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thành phần điểm thành công");
         return "redirect:/admin/courses/" + courseId + "/score-components";
     }
 
@@ -364,14 +364,14 @@ public class AdminCourseController {
             RedirectAttributes redirectAttributes
     ) {
         courseScoreComponentService.deleteById(componentId);
-        redirectAttributes.addFlashAttribute("successMessage", "Xoa thanh phan diem thanh cong");
+        redirectAttributes.addFlashAttribute("successMessage", "Xóa thành phần điểm thành công");
 
         return "redirect:/admin/courses/" + courseId + "/score-components";
     }
 
     private Course buildCourseFromForm(CourseForm form) {
         CourseType courseType = courseTypeService.findById(form.getCourseTypeId())
-                .orElseThrow(() -> new RuntimeException("Khong tim thay loai khoa hoc"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy loại khóa học"));
 
         Course course = new Course();
         course.setCourseCode(form.getCourseCode().trim());

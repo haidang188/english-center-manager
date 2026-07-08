@@ -1,14 +1,17 @@
 package com.englishcentermanager.controller;
 
 import com.englishcentermanager.dto.CourseClassForm;
+import com.englishcentermanager.dto.StaffScoreBoard;
 import com.englishcentermanager.entity.Course;
 import com.englishcentermanager.entity.CourseClass;
+import com.englishcentermanager.entity.ExamSession;
 import com.englishcentermanager.entity.Role;
 import com.englishcentermanager.entity.User;
 import com.englishcentermanager.entity.enums;
 import com.englishcentermanager.service.CourseClassService;
 import com.englishcentermanager.service.CourseService;
 import com.englishcentermanager.service.RoleService;
+import com.englishcentermanager.service.StaffScoreService;
 import com.englishcentermanager.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -37,15 +40,18 @@ public class AdminClassController {
     private final CourseService courseService;
     private final UserService userService;
     private final RoleService roleService;
+    private final StaffScoreService staffScoreService;
 
     public AdminClassController(CourseClassService courseClassService,
                                 CourseService courseService,
                                 UserService userService,
-                                RoleService roleService) {
+                                RoleService roleService,
+                                StaffScoreService staffScoreService) {
         this.courseClassService = courseClassService;
         this.courseService = courseService;
         this.userService = userService;
         this.roleService = roleService;
+        this.staffScoreService = staffScoreService;
     }
 
     @GetMapping
@@ -94,6 +100,30 @@ public class AdminClassController {
         return "admin/classes/list";
     }
 
+    @GetMapping("/{id}")
+    public String classDetail(@PathVariable Long id,
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
+        CourseClass courseClass = courseClassService.findById(id).orElse(null);
+
+        if (courseClass == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy lớp học.");
+            return "redirect:/admin/classes";
+        }
+
+        ExamSession latestSession = staffScoreService.findLatestSession(courseClass).orElse(null);
+        StaffScoreBoard scoreBoard = null;
+        if (latestSession != null) {
+            scoreBoard = staffScoreService.buildScoreBoard(id, latestSession.getId());
+        }
+
+        model.addAttribute("courseClass", courseClass);
+        model.addAttribute("latestSession", latestSession);
+        model.addAttribute("scoreBoard", scoreBoard);
+
+        return "admin/classes/detail";
+    }
+
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         CourseClassForm classForm = new CourseClassForm();
@@ -114,7 +144,7 @@ public class AdminClassController {
         validateClassDates(classForm, bindingResult);
 
         if (courseClassService.existsByClassCode(classForm.getClassCode())) {
-            bindingResult.rejectValue("classCode", "duplicate", "Ma lop da ton tai");
+            bindingResult.rejectValue("classCode", "duplicate", "Mã lớp đã tồn tại");
         }
 
         if (bindingResult.hasErrors()) {
@@ -124,7 +154,7 @@ public class AdminClassController {
         }
 
         courseClassService.save(toEntity(classForm));
-        redirectAttributes.addFlashAttribute("successMessage", "Them lop hoc thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm lớp học thành công.");
 
         return "redirect:/admin/classes";
     }
@@ -136,7 +166,7 @@ public class AdminClassController {
         CourseClass courseClass = courseClassService.findById(id).orElse(null);
 
         if (courseClass == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay lop hoc.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy lớp học.");
             return "redirect:/admin/classes";
         }
 
@@ -154,14 +184,14 @@ public class AdminClassController {
                               Model model,
                               RedirectAttributes redirectAttributes) {
         if (courseClassService.findById(id).isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Khong tim thay lop hoc.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy lớp học.");
             return "redirect:/admin/classes";
         }
 
         validateClassDates(classForm, bindingResult);
 
         if (courseClassService.existsByClassCodeAndIdNot(classForm.getClassCode(), id)) {
-            bindingResult.rejectValue("classCode", "duplicate", "Ma lop da ton tai");
+            bindingResult.rejectValue("classCode", "duplicate", "Mã lớp đã tồn tại");
         }
 
         if (bindingResult.hasErrors()) {
@@ -171,7 +201,7 @@ public class AdminClassController {
         }
 
         courseClassService.update(id, toEntity(classForm));
-        redirectAttributes.addFlashAttribute("successMessage", "Cap nhat lop hoc thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật lớp học thành công.");
 
         return "redirect:/admin/classes";
     }
@@ -181,7 +211,7 @@ public class AdminClassController {
                                @RequestParam enums.ClassStatus status,
                                RedirectAttributes redirectAttributes) {
         courseClassService.updateStatus(id, status);
-        redirectAttributes.addFlashAttribute("successMessage", "Cap nhat trang thai lop hoc thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái lớp học thành công.");
 
         return "redirect:/admin/classes";
     }
@@ -200,9 +230,9 @@ public class AdminClassController {
 
     private CourseClass toEntity(CourseClassForm form) {
         Course course = courseService.findById(form.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Khong tim thay khoa hoc"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học"));
         User teacher = userService.findById(form.getTeacherId())
-                .orElseThrow(() -> new RuntimeException("Khong tim thay giao vien"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giáo viên"));
 
         CourseClass courseClass = new CourseClass();
         courseClass.setClassCode(form.getClassCode().trim());

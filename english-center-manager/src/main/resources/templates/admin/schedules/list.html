@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thoi khoa bieu</title>
+    <title>Thời khóa biểu</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -16,11 +16,11 @@
         <section class="panel">
             <div class="panel-header">
                 <div>
-                    <h3>Thoi khoa bieu</h3>
-                    <span>Chon lop, phong, thu va gio hoc; he thong se chan trung lich</span>
+                    <h3>Thời khóa biểu</h3>
+                    <span>Xem lịch theo thứ và khung giờ để dễ xếp phòng, giáo viên và lớp học.</span>
                 </div>
 
-                <a th:href="@{/admin/schedules/create}" class="action-button">Them lich hoc</a>
+                <a th:href="@{/admin/schedules/create}" class="action-button">Thêm lịch học</a>
             </div>
 
             <div th:if="${successMessage}" class="flash-message success" th:text="${successMessage}"></div>
@@ -28,7 +28,7 @@
 
             <form th:action="@{/admin/schedules}" method="get" class="filter-form advanced">
                 <select name="classId">
-                    <option value="">Tat ca lop hoc</option>
+                    <option value="">Tất cả lớp học</option>
                     <option th:each="courseClass : ${classes}"
                             th:value="${courseClass.id}"
                             th:selected="${selectedClassId != null and selectedClassId == courseClass.id}"
@@ -37,7 +37,7 @@
                 </select>
 
                 <select name="roomId">
-                    <option value="">Tat ca phong</option>
+                    <option value="">Tất cả phòng</option>
                     <option th:each="room : ${rooms}"
                             th:value="${room.id}"
                             th:selected="${selectedRoomId != null and selectedRoomId == room.id}"
@@ -46,44 +46,68 @@
                 </select>
 
                 <select name="dayOfWeek">
-                    <option value="">Tat ca cac thu</option>
+                    <option value="">Tất cả các thứ</option>
                     <option th:each="day : ${days}"
                             th:value="${day}"
                             th:selected="${selectedDayOfWeek != null and selectedDayOfWeek == day}"
-                            th:text="${day}">
+                            th:text="${dayLabels[day]}">
                     </option>
                 </select>
 
-                <button type="submit">Loc</button>
-                <a th:href="@{/admin/schedules}" class="cancel-button compact">Xoa loc</a>
+                <button type="submit">Lọc</button>
+                <a th:href="@{/admin/schedules}" class="cancel-button compact">Xóa lọc</a>
             </form>
 
-            <div class="schedule-board">
-                <div class="schedule-card" th:each="schedule : ${schedules}">
-                    <div class="schedule-time">
-                        <strong th:text="${schedule.dayOfWeek}"></strong>
-                        <span th:text="${schedule.startTime} + ' - ' + ${schedule.endTime}"></span>
-                    </div>
+            <div class="schedule-calendar">
+                <table class="schedule-calendar-table">
+                    <thead>
+                    <tr>
+                        <th>Giờ học</th>
+                        <th th:each="dayColumn : ${dayColumns}" th:text="${dayColumn.label}"></th>
+                    </tr>
+                    </thead>
 
-                    <div class="schedule-detail">
-                        <strong th:text="${schedule.courseClass.className}"></strong>
-                        <span th:text="${schedule.courseClass.teacher.fullName}"></span>
-                        <small th:text="${schedule.room.roomName}"></small>
+                    <tbody>
+                    <tr th:each="row : ${scheduleRows}">
+                        <th th:text="${row.timeLabel}"></th>
+                        <td th:each="dayColumn : ${dayColumns}" th:with="cellSchedules=${row.getSchedulesForDay(dayColumn.day)}">
+                            <div th:if="${#lists.isEmpty(cellSchedules)}" class="calendar-empty">
+                                Trống
+                            </div>
+
+                            <div th:each="schedule : ${cellSchedules}" class="calendar-event">
+                                <strong th:text="|${schedule.room.roomCode} - ${schedule.courseClass.teacher.fullName}|"></strong>
+                                <span th:text="${schedule.courseClass.className}"></span>
+                                <small th:text="${schedule.courseClass.course.courseName}"></small>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(scheduleRows)}">
+                        <td th:colspan="${#lists.size(dayColumns) + 1}" class="empty-row">
+                            Chưa có lịch học phù hợp.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="schedule-action-list">
+                <div class="schedule-action-card" th:each="schedule : ${schedules}">
+                    <div>
+                        <strong th:text="|${dayLabels[schedule.dayOfWeek]}, ${schedule.startTime} - ${schedule.endTime}|"></strong>
+                        <span th:text="|${schedule.room.roomCode} - ${schedule.courseClass.teacher.fullName} - ${schedule.courseClass.className}|"></span>
                     </div>
 
                     <div class="table-actions">
-                        <a th:href="@{/admin/schedules/{id}/edit(id=${schedule.id})}" class="small-button edit">Sua</a>
+                        <a th:href="@{/admin/schedules/{id}/edit(id=${schedule.id})}" class="small-button edit">Sửa</a>
                         <form th:action="@{/admin/schedules/{id}/delete(id=${schedule.id})}"
                               method="post"
-                              onsubmit="return confirm('Ban co chac muon xoa lich hoc nay?')">
+                              onsubmit="return confirm('Bạn có chắc muốn xóa lịch học này?')">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                            <button type="submit" class="small-button danger">Xoa</button>
+                            <button type="submit" class="small-button danger">Xóa</button>
                         </form>
                     </div>
-                </div>
-
-                <div th:if="${#lists.isEmpty(schedules)}" class="empty-schedule">
-                    Chua co lich hoc phu hop
                 </div>
             </div>
 
@@ -91,24 +115,28 @@
                 <table class="admin-table">
                     <thead>
                     <tr>
-                        <th>Thu</th>
-                        <th>Gio hoc</th>
-                        <th>Lop</th>
-                        <th>Khoa hoc</th>
-                        <th>Giao vien</th>
-                        <th>Phong</th>
-                        <th>Ghi chu</th>
+                        <th>Thứ</th>
+                        <th>Giờ học</th>
+                        <th>Lớp</th>
+                        <th>Khóa học</th>
+                        <th>Giáo viên</th>
+                        <th>Phòng</th>
+                        <th>Ghi chú</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="schedule : ${schedules}">
-                        <td th:text="${schedule.dayOfWeek}"></td>
-                        <td th:text="${schedule.startTime} + ' - ' + ${schedule.endTime}"></td>
+                        <td th:text="${dayLabels[schedule.dayOfWeek]}"></td>
+                        <td th:text="|${schedule.startTime} - ${schedule.endTime}|"></td>
                         <td th:text="${schedule.courseClass.className}"></td>
                         <td th:text="${schedule.courseClass.course.courseName}"></td>
                         <td th:text="${schedule.courseClass.teacher.fullName}"></td>
                         <td th:text="${schedule.room.roomName}"></td>
                         <td th:text="${schedule.note}"></td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(schedules)}">
+                        <td colspan="7" class="empty-row">Chưa có lịch học phù hợp.</td>
                     </tr>
                     </tbody>
                 </table>

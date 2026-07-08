@@ -1,21 +1,29 @@
 package com.englishcentermanager.service;
 
+import com.englishcentermanager.dto.PaymentForm;
 import com.englishcentermanager.dto.TuitionBatchForm;
+import com.englishcentermanager.entity.PaymentHistory;
 import com.englishcentermanager.entity.StudentTuition;
 import com.englishcentermanager.entity.TuitionBatch;
-import com.englishcentermanager.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface StaffTuitionService {
-    List<TuitionBatch> findBatches(Long classId);
 
-    Optional<TuitionBatch> findById(Long id);
+    Page<TuitionBatch> getTuitionBatches(String keyword, Pageable pageable);
 
-    TuitionBatch createBatch(TuitionBatchForm form, User createdBy);
+    TuitionBatch createBatch(TuitionBatchForm form);
 
-    List<StudentTuition> findStudentTuitions(TuitionBatch tuitionBatch);
+    TuitionBatch getBatch(Long id);
 
-    long countStudentTuitions(TuitionBatch tuitionBatch);
+    Page<StudentTuition> getStudentTuitions(Long batchId, String keyword, Pageable pageable);
+
+    void updatePayment(Long studentTuitionId, PaymentForm form);
+
+    List<PaymentHistory> getPaymentHistory(Long studentTuitionId);
+
+    StudentTuition getStudentTuition(Long id);
+
 }

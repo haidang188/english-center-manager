@@ -13,29 +13,29 @@
     <main class="admin-main">
         <div th:replace="~{admin/fragments/topbar :: topbar}"></div>
 
-        <section class="stats-grid" aria-label="Tong quan quan tri">
+        <section class="stats-grid" aria-label="Tổng quan quản trị">
             <article class="stat-card accent-blue">
-                <p>Tai khoan</p>
+                <p>Tài khoản</p>
                 <h2 th:text="${totalAccounts}">0</h2>
-                <span th:text="${teacherCount} + ' giao vien, ' + ${studentCount} + ' hoc vien'"></span>
+                <span th:text="${teacherCount} + ' giáo viên, ' + ${studentCount} + ' học viên'"></span>
             </article>
 
             <article class="stat-card accent-green">
-                <p>Khoa hoc</p>
+                <p>Khóa học</p>
                 <h2 th:text="${activeCourses}">0</h2>
-                <span>Khoa hoc dang hoat dong</span>
+                <span>Khóa học đang hoạt động</span>
             </article>
 
             <article class="stat-card accent-orange">
-                <p>Lop hoc</p>
+                <p>Lớp học</p>
                 <h2 th:text="${openClasses}">0</h2>
-                <span>Lop dang mo va du kien mo</span>
+                <span>Lớp đang mở và dự kiến mở</span>
             </article>
 
             <article class="stat-card accent-purple">
-                <p>Phong hoc</p>
+                <p>Phòng học</p>
                 <h2 th:text="${activeRooms}">0</h2>
-                <span>Phong con su dung</span>
+                <span>Phòng còn sử dụng</span>
             </article>
         </section>
 
@@ -43,26 +43,26 @@
             <article class="panel">
                 <div class="panel-header">
                     <div>
-                        <h3>Trang thai lop hoc</h3>
-                        <span>Phan bo lop theo tien do hien tai</span>
+                        <h3>Trạng thái lớp học</h3>
+                        <span>Phân bổ lớp theo tiến độ hiện tại</span>
                     </div>
                 </div>
 
                 <div class="status-overview">
                     <div class="status-row">
-                        <span>Du kien</span>
+                        <span>Dự kiến</span>
                         <strong th:text="${plannedClassCount}">0</strong>
                     </div>
                     <div class="status-row">
-                        <span>Dang mo</span>
+                        <span>Đang mở</span>
                         <strong th:text="${openClassCount}">0</strong>
                     </div>
                     <div class="status-row">
-                        <span>Dang hoc</span>
+                        <span>Đang học</span>
                         <strong th:text="${ongoingClassCount}">0</strong>
                     </div>
                     <div class="status-row">
-                        <span>Hoan thanh</span>
+                        <span>Hoàn thành</span>
                         <strong th:text="${completedClassCount}">0</strong>
                     </div>
                 </div>
@@ -71,23 +71,23 @@
             <article class="panel notice-panel">
                 <div class="panel-header">
                     <div>
-                        <h3>Thong bao van hanh</h3>
-                        <span>Nhung diem can theo doi</span>
+                        <h3>Thông báo vận hành</h3>
+                        <span>Những điểm cần theo dõi</span>
                     </div>
                 </div>
 
                 <div class="notice-list">
                     <div class="notice-item">
-                        <strong>Cau hinh diem</strong>
-                        <span>Vao Khoa hoc va bam Diem de cau hinh thanh phan diem theo tung khoa.</span>
+                        <strong>Cấu hình điểm</strong>
+                        <span>Vào Cấu hình loại điểm để xem công thức và chỉnh thành phần điểm theo từng khóa.</span>
                     </div>
                     <div class="notice-item">
-                        <strong>Thoi khoa bieu</strong>
-                        <span>He thong da chan trung phong, trung lop va trung giao vien theo khoang gio.</span>
+                        <strong>Thời khóa biểu</strong>
+                        <span>Hệ thống đã chặn trùng phòng, trùng lớp và trùng giáo viên theo khoảng giờ.</span>
                     </div>
                     <div class="notice-item">
-                        <strong>Phong hoc</strong>
-                        <span>Co the seed phong bang SQL trong khi ban khac lam giao dien quan ly phong.</span>
+                        <strong>Phòng học</strong>
+                        <span>Có thể quản lý trực tiếp phòng học trong khu vực Admin.</span>
                     </div>
                 </div>
             </article>
@@ -96,22 +96,22 @@
         <section class="panel dashboard-classes">
             <div class="panel-header">
                 <div>
-                    <h3>Danh sach lop hien co</h3>
-                    <span>Cac lop moi nhat trong trung tam</span>
+                    <h3>Danh sách lớp hiện có</h3>
+                    <span>Các lớp mới nhất trong trung tâm</span>
                 </div>
-                <a th:href="@{/admin/classes}" class="secondary-link">Xem tat ca</a>
+                <a th:href="@{/admin/classes}" class="secondary-link">Xem tất cả</a>
             </div>
 
             <div class="table-wrapper">
                 <table class="admin-table">
                     <thead>
                     <tr>
-                        <th>Ma lop</th>
-                        <th>Ten lop</th>
-                        <th>Khoa hoc</th>
-                        <th>Giao vien</th>
-                        <th>Hoc vien</th>
-                        <th>Trang thai</th>
+                        <th>Mã lớp</th>
+                        <th>Tên lớp</th>
+                        <th>Khóa học</th>
+                        <th>Giáo viên</th>
+                        <th>Học viên</th>
+                        <th>Trạng thái</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -124,7 +124,7 @@
                         <td><span class="status-badge active" th:text="${courseClass.status}"></span></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(recentClasses)}">
-                        <td colspan="6" class="empty-row">Chua co lop hoc nao</td>
+                        <td colspan="6" class="empty-row">Chưa có lớp học nào</td>
                     </tr>
                     </tbody>
                 </table>

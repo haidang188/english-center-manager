@@ -1,0 +1,194 @@
+
+
+.staff-sidebar {
+    background: linear-gradient(
+            180deg,
+            #0f766e,
+            #0d9488
+    );
+}
+
+
+
+.staff-title {
+    color: #0f766e;
+}
+
+.staff-subtitle {
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+.class-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.class-info-card {
+    padding: 18px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border-left: 5px solid #0f766e;
+}
+
+.class-info-card h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.class-info-card p {
+    margin: 10px 0 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+
+
+.student-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.student-count {
+    font-size: 15px;
+    font-weight: 600;
+    color: #475569;
+}
+
+
+.staff-search {
+    max-width: 420px;
+}
+
+
+.student-name {
+    font-weight: bold;
+}
+
+.student-email {
+    display: block;
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+
+.small-button.transfer {
+    background: #0ea5e9;
+}
+
+.small-button.transfer:hover {
+    background: #0284c7;
+}
+
+.small-button.status {
+    background: #f59e0b;
+}
+
+.small-button.status:hover {
+    background: #d97706;
+}
+
+.small-button.detail {
+    background: #0f766e;
+}
+
+.small-button.detail:hover {
+    background: #115e59;
+}
+
+
+
+.student-status {
+    min-width: 110px;
+}
+
+
+
+.student-select {
+    width: 100%;
+}
+
+.student-card {
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.student-card:hover {
+    border-color: #0f766e;
+    box-shadow: 0 8px 20px rgba(15, 118, 110, 0.08);
+}
+
+
+
+.transfer-box {
+    max-width: 760px;
+}
+
+.transfer-note {
+    resize: vertical;
+    min-height: 120px;
+}
+
+
+
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #64748b;
+}
+
+.empty-state h3 {
+    margin-top: 10px;
+    color: #334155;
+}
+
+.empty-state p {
+    margin-top: 8px;
+}
+
+
+
+@media (max-width: 992px) {
+
+    .class-info {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .student-summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .class-info {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .class-info-card p {
+        font-size: 18px;
+    }
+
+    .small-button {
+        width: 100%;
+    }
+
+}

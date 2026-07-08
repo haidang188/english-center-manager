@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học viên trong lớp</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{teacher/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{teacher/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3 th:text="${courseClass.className}">Lớp học</h3>
+                    <span th:text="${courseClass.course.courseName}"></span>
+                </div>
+                <a th:href="@{/teacher/classes}" class="secondary-link">Quay lại</a>
+            </div>
+
+            <form th:action="@{/teacher/classes/{id}/students(id=${courseClass.id})}" method="get" class="filter-form advanced">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm tên, email, CCCD">
+                <select name="status">
+                    <option value="">Tất cả trạng thái</option>
+                    <option th:each="item : ${studentStatuses}"
+                            th:value="${item}"
+                            th:selected="${selectedStatus != null and selectedStatus == item}"
+                            th:text="${item}">
+                    </option>
+                </select>
+                <button type="submit">Lọc</button>
+                <a th:href="@{/teacher/classes/{id}/students(id=${courseClass.id})}" class="cancel-button compact">Xóa lọc</a>
+            </form>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Học viên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Ngày vào lớp</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="classStudent : ${students}">
+                        <td th:text="${classStudent.student.fullName}"></td>
+                        <td th:text="${classStudent.student.email}"></td>
+                        <td th:text="${classStudent.student.phoneNumber}"></td>
+                        <td th:text="${classStudent.joinedAt}"></td>
+                        <td><span class="status-badge" th:text="${classStudent.status}"></span></td>
+                        <td class="table-actions">
+                            <a th:href="@{/teacher/classes/{classId}/students/{studentId}(classId=${courseClass.id}, studentId=${classStudent.id})}" class="small-button detail">Chi tiết</a>
+                            <a th:href="@{/teacher/scores/{classId}/students/{studentId}(classId=${courseClass.id}, studentId=${classStudent.id})}" class="small-button edit">Nhập điểm</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(students)}">
+                        <td colspan="6" class="empty-row">Không có học viên phù hợp.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

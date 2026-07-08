@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quan ly lop hoc</title>
+    <title>Quản lý lớp học</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -16,11 +16,11 @@
         <section class="panel">
             <div class="panel-header">
                 <div>
-                    <h3>Quan ly lop hoc</h3>
+                    <h3>Quản lý lớp học</h3>
                     <span>Tao lop, phan cong giao vien va theo doi trang thai lop</span>
                 </div>
 
-                <a th:href="@{/admin/classes/create}" class="action-button">Them lop hoc</a>
+                <a th:href="@{/admin/classes/create}" class="action-button">Thêm lớp học</a>
             </div>
 
             <div th:if="${successMessage}" class="flash-message success" th:text="${successMessage}"></div>
@@ -30,7 +30,7 @@
                 <input type="text" name="keyword" th:value="${keyword}" placeholder="Tim ma lop, ten lop, giao vien...">
 
                 <select name="courseId">
-                    <option value="">Tat ca khoa hoc</option>
+                    <option value="">Tất cả khóa học</option>
                     <option th:each="course : ${courses}"
                             th:value="${course.id}"
                             th:selected="${selectedCourseId != null and selectedCourseId == course.id}"
@@ -39,7 +39,7 @@
                 </select>
 
                 <select name="status">
-                    <option value="">Tat ca trang thai</option>
+                    <option value="">Tất cả trạng thái</option>
                     <option th:each="status : ${statuses}"
                             th:value="${status}"
                             th:selected="${selectedStatus != null and selectedStatus == status}"
@@ -47,20 +47,20 @@
                     </option>
                 </select>
 
-                <button type="submit">Loc</button>
-                <a th:href="@{/admin/classes}" class="cancel-button compact">Xoa loc</a>
+                <button type="submit">Lọc</button>
+                <a th:href="@{/admin/classes}" class="cancel-button compact">Xóa lọc</a>
             </form>
 
             <div class="table-wrapper">
                 <table class="admin-table">
                     <thead>
                     <tr>
-                        <th>Ma lop</th>
-                        <th>Ten lop</th>
-                        <th>Khoa hoc</th>
-                        <th>Giao vien</th>
-                        <th>Thoi gian</th>
-                        <th>Trang thai</th>
+                        <th>Mã lớp</th>
+                        <th>Tên lớp</th>
+                        <th>Khóa học</th>
+                        <th>Giáo viên</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
                         <th>Thao tac</th>
                     </tr>
                     </thead>
@@ -81,7 +81,7 @@
                             <span class="status-badge active" th:text="${courseClass.status}"></span>
                         </td>
                         <td class="table-actions">
-                            <a th:href="@{/admin/classes/{id}/edit(id=${courseClass.id})}" class="small-button edit">Sua</a>
+                            <a th:href="@{/admin/classes/{id}/edit(id=${courseClass.id})}" class="small-button edit">Sửa</a>
                             <a th:href="@{/admin/schedules(classId=${courseClass.id})}" class="small-button warning">Lich</a>
 
                             <form th:action="@{/admin/classes/{id}/status(id=${courseClass.id})}" method="post">
@@ -93,13 +93,13 @@
                                             th:text="${status}">
                                     </option>
                                 </select>
-                                <button type="submit" class="small-button success">Luu</button>
+                                <button type="submit" class="small-button success">Lưu</button>
                             </form>
                         </td>
                     </tr>
 
                     <tr th:if="${#lists.isEmpty(classes)}">
-                        <td colspan="7" class="empty-row">Khong co lop hoc phu hop</td>
+                        <td colspan="7" class="empty-row">Không có lớp học phù hợp</td>
                     </tr>
                     </tbody>
                 </table>

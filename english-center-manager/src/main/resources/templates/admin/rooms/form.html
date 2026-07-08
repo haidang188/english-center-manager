@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit} ? 'Sửa phòng học' : 'Thêm phòng học'">Phòng học</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{admin/fragments/topbar :: topbar}"></div>
+
+        <section class="panel form-panel">
+            <div class="panel-header">
+                <div>
+                    <h3 th:text="${isEdit} ? 'Sửa phòng học' : 'Thêm phòng học'"></h3>
+                    <span>Nhập thông tin phòng học. Mã phòng không được trùng.</span>
+                </div>
+
+                <a th:href="@{/admin/rooms}" class="secondary-link">Quay lại</a>
+            </div>
+
+            <form th:action="${isEdit} ? @{/admin/rooms/{id}/edit(id=${roomForm.id})} : @{/admin/rooms/create}"
+                  th:object="${roomForm}"
+                  method="post"
+                  class="admin-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Mã phòng</label>
+                        <input type="text" th:field="*{roomCode}" placeholder="Ví dụ: 101">
+                        <p class="field-error" th:if="${#fields.hasErrors('roomCode')}" th:errors="*{roomCode}"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tên phòng</label>
+                        <input type="text" th:field="*{roomName}" placeholder="Ví dụ: Phòng 101">
+                        <p class="field-error" th:if="${#fields.hasErrors('roomName')}" th:errors="*{roomName}"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sức chứa</label>
+                        <input type="number" th:field="*{capacity}" min="1" max="100" placeholder="Ví dụ: 30">
+                        <p class="field-error" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Trạng thái</label>
+                        <select th:field="*{active}">
+                            <option th:value="true">Đang sử dụng</option>
+                            <option th:value="false">Ngưng sử dụng</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="action-button"
+                            th:text="${isEdit} ? 'Cập nhật' : 'Thêm phòng học'">
+                    </button>
+                    <a th:href="@{/admin/rooms}" class="cancel-button">Hủy</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -57,6 +58,22 @@ public class StaffScoreServiceImpl implements StaffScoreService {
 
     @Override
     @Transactional
+    public ExamSession findOrCreateDefaultSession(Long classId, User createdBy) {
+        CourseClass courseClass = findClass(classId);
+        return findLatestSession(courseClass).orElseGet(() -> {
+            ExamSession examSession = new ExamSession();
+            examSession.setCourseClass(courseClass);
+            examSession.setExamName("Bảng điểm chính");
+            examSession.setExamDate(LocalDate.now());
+            examSession.setNote("Bảng điểm mặc định của lớp");
+            examSession.setCreatedByUser(createdBy);
+            examSession.setCreatedAt(LocalDateTime.now());
+            return examSessionRepository.save(examSession);
+        });
+    }
+
+    @Override
+    @Transactional
     public ExamSession createSession(Long classId, ExamSessionForm form, User createdBy) {
         CourseClass courseClass = findClass(classId);
 
@@ -77,12 +94,8 @@ public class StaffScoreServiceImpl implements StaffScoreService {
         ExamSession examSession = findSessionInClass(examSessionId, courseClass);
         List<ClassStudent> classStudents = classStudentRepository.findByCourseClassOrderByStudentFullNameAsc(courseClass);
         List<CourseScoreComponent> components = loadComponents(courseClass);
-        List<CourseScoreComponent> inputComponents = components.stream()
-                .filter(component -> !Boolean.TRUE.equals(component.getCalculated()))
-                .toList();
-        List<CourseScoreComponent> calculatedComponents = components.stream()
-                .filter(component -> Boolean.TRUE.equals(component.getCalculated()))
-                .toList();
+        List<CourseScoreComponent> inputComponents = inputComponents(components);
+        List<CourseScoreComponent> calculatedComponents = resultComponents(components);
 
         StaffScoreBoard scoreBoard = new StaffScoreBoard();
         scoreBoard.setCourseClass(courseClass);
@@ -106,7 +119,7 @@ public class StaffScoreServiceImpl implements StaffScoreService {
                     .map(component -> scoreBoard.getScoreValues().get(scoreKey(classStudent.getId(), component.getId())))
                     .filter(value -> value != null)
                     .findFirst()
-                    .or(() -> calculateAverage(classStudent, inputComponents, scoreBoard.getScoreValues()))
+                    .or(() -> calculateResultScore(courseClass, classStudent, inputComponents, scoreBoard.getScoreValues()))
                     .ifPresent(value -> scoreBoard.getAverageScores().put(classStudent.getId(), value));
         }
 
@@ -145,7 +158,7 @@ public class StaffScoreServiceImpl implements StaffScoreService {
             ClassStudent classStudent = classStudentById.get(classStudentId);
             CourseScoreComponent component = componentById.get(componentId);
 
-            if (classStudent == null || component == null || Boolean.TRUE.equals(component.getCalculated())) {
+            if (classStudent == null || component == null || !Boolean.TRUE.equals(component.getCalculated())) {
                 continue;
             }
 
@@ -160,12 +173,8 @@ public class StaffScoreServiceImpl implements StaffScoreService {
                                       List<ClassStudent> classStudents,
                                       List<CourseScoreComponent> components,
                                       User currentUser) {
-        List<CourseScoreComponent> inputComponents = components.stream()
-                .filter(component -> !Boolean.TRUE.equals(component.getCalculated()))
-                .toList();
-        List<CourseScoreComponent> calculatedComponents = components.stream()
-                .filter(component -> Boolean.TRUE.equals(component.getCalculated()))
-                .toList();
+        List<CourseScoreComponent> inputComponents = inputComponents(components);
+        List<CourseScoreComponent> calculatedComponents = resultComponents(components);
 
         if (calculatedComponents.isEmpty()) {
             return;
@@ -178,15 +187,54 @@ public class StaffScoreServiceImpl implements StaffScoreService {
                 scoreValues.put(scoreKey(classStudent.getId(), entry.getScoreComponent().getId()), entry.getScoreValue());
             }
 
-            Optional<BigDecimal> average = calculateAverage(classStudent, inputComponents, scoreValues);
-            if (average.isEmpty()) {
+            Optional<BigDecimal> resultScore = calculateResultScore(examSession.getCourseClass(), classStudent, inputComponents, scoreValues);
+            if (resultScore.isEmpty()) {
                 continue;
             }
 
             for (CourseScoreComponent calculatedComponent : calculatedComponents) {
-                upsertScore(examSession, classStudent, calculatedComponent, average.get(), currentUser);
+                upsertScore(examSession, classStudent, calculatedComponent, resultScore.get(), currentUser);
             }
         }
+    }
+
+    private Optional<BigDecimal> calculateResultScore(CourseClass courseClass,
+                                                      ClassStudent classStudent,
+                                                      List<CourseScoreComponent> inputComponents,
+                                                      Map<String, BigDecimal> scoreValues) {
+        if (isToeicCourse(courseClass)) {
+            return calculateToeicTotal(classStudent, inputComponents, scoreValues);
+        }
+
+        return calculateAverage(classStudent, inputComponents, scoreValues);
+    }
+
+    private Optional<BigDecimal> calculateToeicTotal(ClassStudent classStudent,
+                                                     List<CourseScoreComponent> inputComponents,
+                                                     Map<String, BigDecimal> scoreValues) {
+        BigDecimal total = BigDecimal.ZERO;
+        int scoredCount = 0;
+
+        for (CourseScoreComponent component : inputComponents) {
+            BigDecimal scoreValue = scoreValues.get(scoreKey(classStudent.getId(), component.getId()));
+
+            if (scoreValue == null && Boolean.TRUE.equals(component.getRequired())) {
+                return Optional.empty();
+            }
+
+            if (scoreValue == null) {
+                continue;
+            }
+
+            total = total.add(scoreValue);
+            scoredCount++;
+        }
+
+        if (scoredCount == 0) {
+            return Optional.empty();
+        }
+
+        return Optional.of(total.setScale(2, RoundingMode.HALF_UP));
     }
 
     private Optional<BigDecimal> calculateAverage(ClassStudent classStudent,
@@ -280,6 +328,32 @@ public class StaffScoreServiceImpl implements StaffScoreService {
                 .sorted(Comparator.comparing(
                         component -> component.getDisplayOrder() == null ? Integer.MAX_VALUE : component.getDisplayOrder()))
                 .toList();
+    }
+
+    private List<CourseScoreComponent> inputComponents(List<CourseScoreComponent> components) {
+        return components.stream()
+                .filter(component -> Boolean.TRUE.equals(component.getCalculated()))
+                .toList();
+    }
+
+    private List<CourseScoreComponent> resultComponents(List<CourseScoreComponent> components) {
+        return components.stream()
+                .filter(component -> !Boolean.TRUE.equals(component.getCalculated()))
+                .toList();
+    }
+
+    private boolean isToeicCourse(CourseClass courseClass) {
+        String courseCode = courseClass.getCourse().getCourseCode();
+        String courseName = courseClass.getCourse().getCourseName();
+        String typeName = courseClass.getCourse().getCourseType().getTypeName();
+
+        return containsIgnoreCase(courseCode, "TOEIC")
+                || containsIgnoreCase(courseName, "TOEIC")
+                || containsIgnoreCase(typeName, "TOEIC");
+    }
+
+    private boolean containsIgnoreCase(String value, String keyword) {
+        return value != null && value.toLowerCase().contains(keyword.toLowerCase());
     }
 
     private CourseClass findClass(Long classId) {

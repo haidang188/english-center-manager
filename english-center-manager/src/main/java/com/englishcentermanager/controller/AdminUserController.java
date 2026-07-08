@@ -84,7 +84,7 @@ public class AdminUserController {
 
         userService.createByAdmin(user);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Them tai khoan thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm tài khoản thành công.");
         return "redirect:/admin/users";
     }
 
@@ -124,7 +124,7 @@ public class AdminUserController {
 
         userService.updateByAdmin(id, user);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Cap nhat tai khoan thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật tài khoản thành công.");
         return "redirect:/admin/users";
     }
 
@@ -133,19 +133,19 @@ public class AdminUserController {
                            Authentication authentication,
                            RedirectAttributes redirectAttributes) {
         if (isCurrentUser(id, authentication)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Ban khong the khoa tai khoan dang dang nhap.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn không thể khóa tài khoản đang đăng nhập.");
             return "redirect:/admin/users";
         }
 
         userService.lockUser(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Khoa tai khoan thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Khóa tài khoản thành công.");
         return "redirect:/admin/users";
     }
 
     @PostMapping("/{id}/unlock")
     public String unlockUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         userService.unlockUser(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Mo khoa tai khoan thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Mở khóa tài khoản thành công.");
         return "redirect:/admin/users";
     }
 
@@ -169,7 +169,7 @@ public class AdminUserController {
                 .orElseThrow(() -> new RuntimeException("Khong tim thay tai khoan"));
 
         if (!resetPasswordForm.getNewPassword().equals(resetPasswordForm.getConfirmPassword())) {
-            bindingResult.rejectValue("confirmPassword", "error.confirmPassword", "Mat khau xac nhan khong khop");
+            bindingResult.rejectValue("confirmPassword", "error.confirmPassword", "Mật khẩu xác nhận không khớp");
         }
 
         if (bindingResult.hasErrors()) {
@@ -178,29 +178,29 @@ public class AdminUserController {
         }
 
         userService.resetPassword(id, resetPasswordForm.getNewPassword());
-        redirectAttributes.addFlashAttribute("successMessage", "Dat lai mat khau thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Đặt lại mật khẩu thành công.");
         return "redirect:/admin/users";
     }
 
     private void validateCreate(UserForm userForm, BindingResult bindingResult) {
         if (userForm.getPassword() == null || userForm.getPassword().trim().isEmpty()) {
-            bindingResult.rejectValue("password", "error.password", "Vui long nhap mat khau");
+            bindingResult.rejectValue("password", "error.password", "Vui lòng nhập mật khẩu");
         }
         if (userService.existsByEmail(userForm.getEmail())) {
-            bindingResult.rejectValue("email", "error.email", "Email da duoc su dung");
+            bindingResult.rejectValue("email", "error.email", "Email đã được sử dụng");
         }
         if (hasText(userForm.getIdentityNumber()) && userService.existsByIdentityNumber(userForm.getIdentityNumber())) {
-            bindingResult.rejectValue("identityNumber", "error.identityNumber", "CCCD/CMND da duoc su dung");
+            bindingResult.rejectValue("identityNumber", "error.identityNumber", "CCCD/CMND đã được sử dụng");
         }
     }
 
     private void validateUpdate(Long id, UserForm userForm, BindingResult bindingResult) {
         if (userService.existsByEmailAndIdNot(userForm.getEmail(), id)) {
-            bindingResult.rejectValue("email", "error.email", "Email da duoc su dung");
+            bindingResult.rejectValue("email", "error.email", "Email đã được sử dụng");
         }
         if (hasText(userForm.getIdentityNumber())
                 && userService.existsByIdentityNumberAndIdNot(userForm.getIdentityNumber(), id)) {
-            bindingResult.rejectValue("identityNumber", "error.identityNumber", "CCCD/CMND da duoc su dung");
+            bindingResult.rejectValue("identityNumber", "error.identityNumber", "CCCD/CMND đã được sử dụng");
         }
     }
 

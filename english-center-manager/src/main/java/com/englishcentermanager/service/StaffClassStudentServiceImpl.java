@@ -1,14 +1,14 @@
 package com.englishcentermanager.service;
 
-import com.englishcentermanager.entity.ClassStudent;
-import com.englishcentermanager.entity.CourseClass;
-import com.englishcentermanager.entity.StudentStatusHistory;
-import com.englishcentermanager.entity.User;
-import com.englishcentermanager.entity.enums;
-import com.englishcentermanager.repository.ClassStudentRepository;
-import com.englishcentermanager.repository.CourseClassRepository;
-import com.englishcentermanager.repository.StudentStatusHistoryRepository;
-import com.englishcentermanager.repository.UserRepository;
+import com.englishcentermanager.entity.*;
+import com.englishcentermanager.exception.BusinessException;
+import com.englishcentermanager.exception.ResourceNotFoundException;
+import com.englishcentermanager.repository.*;
+
+import com.englishcentermanager.security.SecurityService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,137 +17,184 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class StaffClassStudentServiceImpl implements StaffClassStudentService {
+
     private final ClassStudentRepository classStudentRepository;
     private final CourseClassRepository courseClassRepository;
     private final UserRepository userRepository;
     private final StudentStatusHistoryRepository studentStatusHistoryRepository;
+    private final SecurityService securityService;
+    private final RoleRepository roleRepository;
 
-    public StaffClassStudentServiceImpl(ClassStudentRepository classStudentRepository,
-                                        CourseClassRepository courseClassRepository,
-                                        UserRepository userRepository,
-                                        StudentStatusHistoryRepository studentStatusHistoryRepository) {
-        this.classStudentRepository = classStudentRepository;
-        this.courseClassRepository = courseClassRepository;
-        this.userRepository = userRepository;
-        this.studentStatusHistoryRepository = studentStatusHistoryRepository;
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClassStudent> getStudentsByClass(Long classId, Pageable pageable) {
+        return classStudentRepository.findByCourseClassId(classId, pageable);
     }
 
     @Override
-    public List<ClassStudent> searchInClass(Long classId, String keyword, enums.StudentClassStatus status) {
-        String normalizedKeyword = keyword == null || keyword.trim().isEmpty() ? null : keyword.trim();
-        return classStudentRepository.searchInClass(classId, normalizedKeyword, status);
+    @Transactional(readOnly = true)
+    public Page<ClassStudent> getStudentsByClass(Long classId, String keyword, enums.StudentClassStatus status, Pageable pageable) {
+        String normalizedKeyword = normalizeKeyword(keyword);
+        return classStudentRepository.searchByClass(classId, normalizedKeyword, status, pageable);
     }
 
     @Override
-    @Transactional
-    public ClassStudent addStudentToClass(Long classId, Long studentId, LocalDate joinedAt, User changedBy) {
-        CourseClass courseClass = findClass(classId);
-        User student = findUser(studentId);
-        validateStudentRole(student);
+    public void addStudentToClass(Long classId, Long studentId) {
+        CourseClass courseClass = courseClassRepository.findById(classId).orElseThrow(()
+                -> new RuntimeException(" Class Not Found"));
 
-        if (classStudentRepository.existsByCourseClassAndStudent(courseClass, student)) {
-            throw new IllegalArgumentException("Hoc vien da co trong lop nay.");
+        User student = userRepository.findById(studentId).orElseThrow(()
+                -> new RuntimeException(" Student Not Found"));
+        if (!hasRole(student, "STUDENT")) {
+            throw new RuntimeException("Select user is not a student ");
         }
 
+        boolean exists = classStudentRepository.existsByCourseClassIdAndStudentId(courseClass.getId(), studentId);
+        if (exists) {
+            throw new RuntimeException("Student already exist  in this class");
+        }
         ClassStudent classStudent = new ClassStudent();
         classStudent.setCourseClass(courseClass);
         classStudent.setStudent(student);
-        classStudent.setJoinedAt(joinedAt == null ? LocalDate.now() : joinedAt);
         classStudent.setStatus(enums.StudentClassStatus.STUDYING);
-
-        ClassStudent savedClassStudent = classStudentRepository.save(classStudent);
-        recordStatusHistory(savedClassStudent, null, savedClassStudent.getStatus(), changedBy, "Them hoc vien vao lop");
-
-        return savedClassStudent;
-    }
-
-    @Override
-    @Transactional
-    public void updateStatus(Long classStudentId,
-                             enums.StudentClassStatus status,
-                             User changedBy,
-                             String note) {
-        ClassStudent classStudent = findClassStudent(classStudentId);
-        enums.StudentClassStatus oldStatus = classStudent.getStatus();
-
-        classStudent.setStatus(status);
-        if (status == enums.StudentClassStatus.DROPPED || status == enums.StudentClassStatus.COMPLETED) {
-            classStudent.setLeftAt(LocalDate.now());
-        } else if (status == enums.StudentClassStatus.STUDYING) {
-            classStudent.setLeftAt(null);
-        }
+        classStudent.setJoinedAt(LocalDate.now());
 
         classStudentRepository.save(classStudent);
-        recordStatusHistory(classStudent, oldStatus, status, changedBy, note);
+
     }
 
     @Override
-    @Transactional
-    public ClassStudent transferStudent(Long classStudentId, Long targetClassId, User changedBy, String note) {
-        ClassStudent sourceClassStudent = findClassStudent(classStudentId);
-        CourseClass targetClass = findClass(targetClassId);
-
-        if (sourceClassStudent.getCourseClass().getId().equals(targetClassId)) {
-            throw new IllegalArgumentException("Lop chuyen den phai khac lop hien tai.");
+    public void updateStudentStatus(Long classStudentId, enums.StudentClassStatus newStatus, String note) {
+        ClassStudent classStudent = classStudentRepository.findById(classStudentId).orElseThrow(()
+                -> new RuntimeException("Class student not found"));
+        enums.StudentClassStatus oldStatus = classStudent.getStatus();
+        if (oldStatus == newStatus) {
+            throw new RuntimeException("Trang thai moi trung voi trang thai hien tai");
         }
+        classStudent.setStatus(newStatus);
 
-        if (classStudentRepository.existsByCourseClassAndStudent(targetClass, sourceClassStudent.getStudent())) {
-            throw new IllegalArgumentException("Hoc vien da co trong lop chuyen den.");
+        switch (newStatus) {
+            case WAITING_TRANSFER, DROPPED, COMPLETED -> classStudent.setLeftAt(LocalDate.now());
+            default -> classStudent.setLeftAt(null);
         }
-
-        enums.StudentClassStatus oldStatus = sourceClassStudent.getStatus();
-        sourceClassStudent.setStatus(enums.StudentClassStatus.WAITING_TRANSFER);
-        sourceClassStudent.setLeftAt(LocalDate.now());
-        classStudentRepository.save(sourceClassStudent);
-        recordStatusHistory(sourceClassStudent, oldStatus, enums.StudentClassStatus.WAITING_TRANSFER, changedBy, note);
-
-        ClassStudent targetClassStudent = new ClassStudent();
-        targetClassStudent.setCourseClass(targetClass);
-        targetClassStudent.setStudent(sourceClassStudent.getStudent());
-        targetClassStudent.setJoinedAt(LocalDate.now());
-        targetClassStudent.setStatus(enums.StudentClassStatus.STUDYING);
-
-        ClassStudent savedTarget = classStudentRepository.save(targetClassStudent);
-        recordStatusHistory(savedTarget, null, enums.StudentClassStatus.STUDYING, changedBy,
-                "Nhan chuyen lop tu " + sourceClassStudent.getCourseClass().getClassCode());
-
-        return savedTarget;
-    }
-
-    private CourseClass findClass(Long classId) {
-        return courseClassRepository.findById(classId)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay lop hoc"));
-    }
-
-    private User findUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay hoc vien"));
-    }
-
-    private ClassStudent findClassStudent(Long classStudentId) {
-        return classStudentRepository.findById(classStudentId)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay hoc vien trong lop"));
-    }
-
-    private void validateStudentRole(User user) {
-        if (user.getRole() == null || !"STUDENT".equalsIgnoreCase(user.getRole().getName())) {
-            throw new IllegalArgumentException("Tai khoan duoc chon khong phai hoc vien.");
-        }
-    }
-
-    private void recordStatusHistory(ClassStudent classStudent,
-                                     enums.StudentClassStatus oldStatus,
-                                     enums.StudentClassStatus newStatus,
-                                     User changedBy,
-                                     String note) {
+        classStudentRepository.save(classStudent);
         StudentStatusHistory history = new StudentStatusHistory();
         history.setClassStudent(classStudent);
         history.setOldStatus(oldStatus);
         history.setNewStatus(newStatus);
-        history.setChangedByUser(changedBy);
+        history.setChangedByUser(securityService.getCurrentUser());
+        history.setChangedAt(LocalDateTime.now());
+        history.setNote(note);
+
+        studentStatusHistoryRepository.save(history);
+
+
+    }
+
+    @Override
+    public void transferStudent(Long studentId, Long fromClassId, Long toClassId, String note) {
+        CourseClass fromClass = courseClassRepository.findById(fromClassId).orElseThrow(()
+                -> new ResourceNotFoundException("Source class not found."));
+
+        CourseClass toClass = courseClassRepository.findById(toClassId).orElseThrow(()
+                -> new ResourceNotFoundException("Target class not found."));
+
+        ClassStudent oldClassStudent = classStudentRepository.findByCourseClassIdAndStudentId(fromClassId, studentId).orElseThrow(()
+                -> new ResourceNotFoundException("Student is not in source class."));
+
+        if (classStudentRepository.existsByCourseClassIdAndStudentId(toClassId, studentId)) {
+            throw new BusinessException("Student already exists in target class");
+        }
+        User currentUser = securityService.getCurrentUser();
+        enums.StudentClassStatus oldStatus = oldClassStudent.getStatus();
+        oldClassStudent.setStatus(enums.StudentClassStatus.WAITING_TRANSFER);
+        oldClassStudent.setLeftAt(LocalDate.now());
+        classStudentRepository.save(oldClassStudent);
+
+
+
+        StudentStatusHistory history = new StudentStatusHistory();
+        history.setClassStudent(oldClassStudent);
+        history.setOldStatus(oldStatus);
+        history.setNewStatus(enums.StudentClassStatus.WAITING_TRANSFER);
+        history.setChangedByUser(currentUser);
         history.setChangedAt(LocalDateTime.now());
         history.setNote(note);
         studentStatusHistoryRepository.save(history);
+
+
+        ClassStudent newClassStudent = new ClassStudent();
+        newClassStudent.setCourseClass(toClass);
+        newClassStudent.setStudent(oldClassStudent.getStudent());
+        newClassStudent.setStatus(enums.StudentClassStatus.STUDYING);
+        newClassStudent.setJoinedAt(LocalDate.now());
+        classStudentRepository.save(newClassStudent);
+
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CourseClass> getAllClasses() {
+        return courseClassRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CourseClass> getAllClasses(String keyword) {
+        return courseClassRepository.searchByKeyword(normalizeKeyword(keyword));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CourseClass getClassById(Long classId) {
+        return courseClassRepository.findById(classId).orElseThrow(() -> new ResourceNotFoundException("Class not found"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getStudents() {
+        Role studentRole = roleRepository.findByName("STUDENT").orElseThrow(() -> new RuntimeException("Student Role not found"));
+        return userRepository.findByRole(studentRole);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<User> getStudents(String keyword, Pageable pageable) {
+        return userRepository.searchStudents(normalizeKeyword(keyword), pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getStudentById(Long studentId) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        if (!hasRole(student, "STUDENT")) {
+            throw new BusinessException("Selected user is not a student");
+        }
+        return student;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ClassStudent getClassStudentById(Long classStudentId) {
+        return classStudentRepository.findById(classStudentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Class student not found"));
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null || keyword.trim().isEmpty() ? null : keyword.trim();
+    }
+
+    private boolean hasRole(User user, String roleName) {
+        if (user.getRole() == null || user.getRole().getName() == null) {
+            return false;
+        }
+
+        String currentRole = user.getRole().getName();
+        return roleName.equals(currentRole) || ("ROLE_" + roleName).equals(currentRole);
     }
 }

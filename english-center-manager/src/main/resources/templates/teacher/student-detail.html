@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết học viên</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{teacher/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{teacher/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3 th:text="${classStudent.student.fullName}">Học viên</h3>
+                    <span th:text="${courseClass.className}"></span>
+                </div>
+                <a th:href="@{/teacher/classes/{id}/students(id=${courseClass.id})}" class="secondary-link">Quay lại</a>
+            </div>
+
+            <div class="stats-grid role-stats-grid three">
+                <div class="stat-card accent-blue">
+                    <p>Email</p>
+                    <h2 style="font-size: 18px; word-break: break-word;" th:text="${classStudent.student.email}"></h2>
+                    <span>Tài khoản học viên</span>
+                </div>
+                <div class="stat-card accent-green">
+                    <p>Số điện thoại</p>
+                    <h2 style="font-size: 22px;" th:text="${classStudent.student.phoneNumber}"></h2>
+                    <span>Thông tin liên hệ</span>
+                </div>
+                <div class="stat-card accent-orange">
+                    <p>Trạng thái lớp</p>
+                    <h2 style="font-size: 22px;" th:text="${classStudent.status}"></h2>
+                    <span>Tình trạng học tập</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Điểm đã ghi nhận</h3>
+                    <span>Danh sách điểm theo bảng điểm của lớp.</span>
+                </div>
+                <a th:href="@{/teacher/scores/{classId}/students/{studentId}(classId=${courseClass.id}, studentId=${classStudent.id})}" class="action-button">Nhập điểm</a>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Bảng điểm</th>
+                        <th>Ngày</th>
+                        <th>Thành phần</th>
+                        <th>Điểm</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="entry : ${scoreEntries}">
+                        <td th:text="${entry.examSession.examName}"></td>
+                        <td th:text="${entry.examSession.examDate}"></td>
+                        <td th:text="${entry.scoreComponent.componentName}"></td>
+                        <td th:text="${entry.scoreValue}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(scoreEntries)}">
+                        <td colspan="4" class="empty-row">Chưa có điểm.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

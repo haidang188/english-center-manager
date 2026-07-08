@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giảng viên</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{teacher/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{teacher/fragments/topbar :: topbar}"></div>
+
+        <section class="role-hero teacher-hero">
+            <div>
+                <p class="eyebrow">Xin chào</p>
+                <h2 th:text="${teacher.fullName}">Giảng viên</h2>
+                <span>Theo dõi lớp phụ trách, học viên và bảng điểm trong một nơi.</span>
+            </div>
+            <div class="role-hero-actions">
+                <a th:href="@{/teacher/classes}" class="action-button">Danh sách lớp</a>
+                <a th:href="@{/teacher/scores}" class="secondary-link">Quản lý điểm</a>
+            </div>
+        </section>
+
+        <div class="stats-grid role-stats-grid">
+            <div class="stat-card accent-blue">
+                <p>Lớp phụ trách</p>
+                <h2 th:text="${classCount}">0</h2>
+                <span>Tổng số lớp được phân công</span>
+            </div>
+            <div class="stat-card accent-green">
+                <p>Học viên</p>
+                <h2 th:text="${studentCount}">0</h2>
+                <span>Tổng học viên trong các lớp</span>
+            </div>
+        </div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Lớp đang phụ trách</h3>
+                    <span>Danh sách các lớp được phân công cho giảng viên.</span>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Mã lớp</th>
+                        <th>Tên lớp</th>
+                        <th>Khóa học</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="courseClass : ${classes}">
+                        <td th:text="${courseClass.classCode}"></td>
+                        <td th:text="${courseClass.className}"></td>
+                        <td th:text="${courseClass.course.courseName}"></td>
+                        <td><span class="status-badge" th:text="${courseClass.status}"></span></td>
+                        <td class="table-actions">
+                            <a th:href="@{/teacher/classes/{id}/students(id=${courseClass.id})}" class="small-button detail">Học viên</a>
+                            <a th:href="@{/teacher/scores(classId=${courseClass.id})}" class="small-button edit">Điểm</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(classes)}">
+                        <td colspan="5" class="empty-row">Chưa có lớp được phân công.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

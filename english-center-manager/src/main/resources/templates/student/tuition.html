@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học phí</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{student/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{student/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Học phí</h3>
+                    <span>Xem tình trạng học phí hiện tại và lịch sử đóng học phí.</span>
+                </div>
+                <a th:href="@{/student}" class="secondary-link">Dashboard</a>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Lớp</th>
+                        <th>Số tiền</th>
+                        <th>Hạn đóng</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày đóng</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tuition : ${tuitions}">
+                        <td th:text="${tuition.tuitionBatch.courseClass.className}"></td>
+                        <td th:text="${#numbers.formatDecimal(tuition.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                        <td th:text="${tuition.tuitionBatch.dueDate}"></td>
+                        <td><span class="status-badge" th:text="${tuition.status}"></span></td>
+                        <td th:text="${tuition.paidAt != null ? tuition.paidAt : '-'}"></td>
+                        <td>
+                            <a th:href="@{/student/tuition/{id}/history(id=${tuition.id})}" class="small-button detail">Lịch sử</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(tuitions)}">
+                        <td colspan="6" class="empty-row">Chưa có thông tin học phí.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Lịch sử đóng học phí</h3>
+                    <span>Các giao dịch đã được giáo vụ ghi nhận.</span>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Lớp</th>
+                        <th>Số tiền</th>
+                        <th>Ngày đóng</th>
+                        <th>Phương thức</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="history : ${paymentHistories}">
+                        <td th:text="${history.studentTuition.tuitionBatch.courseClass.className}"></td>
+                        <td th:text="${#numbers.formatDecimal(history.paidAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                        <td th:text="${history.paidAt}"></td>
+                        <td th:text="${history.paymentMethod}"></td>
+                        <td th:text="${history.note}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(paymentHistories)}">
+                        <td colspan="5" class="empty-row">Chưa có lịch sử đóng học phí.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

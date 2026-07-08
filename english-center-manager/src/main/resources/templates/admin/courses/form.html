@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${title}">Khoa hoc</title>
+    <title th:text="${title}">Khóa học</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -16,9 +16,9 @@
             <div class="page-header">
                 <div>
                     <h1 th:text="${title}"></h1>
-                    <p>Nhap thong tin khoa hoc</p>
+                    <p>Nhập thông tin khóa học</p>
                 </div>
-                <a th:href="@{/admin/courses}" class="btn btn-light">Quay lai</a>
+                <a th:href="@{/admin/courses}" class="btn btn-light">Quay lại</a>
             </div>
 
             <form th:action="@{${actionUrl}}" th:object="${courseForm}" method="post" class="admin-form">
@@ -26,21 +26,21 @@
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Ma khoa hoc</label>
+                        <label>Mã khóa học</label>
                         <input type="text" th:field="*{courseCode}">
                         <p class="field-error" th:errors="*{courseCode}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Ten khoa hoc</label>
+                        <label>Tên khóa học</label>
                         <input type="text" th:field="*{courseName}">
                         <p class="field-error" th:errors="*{courseName}"></p>
                     </div>
 
                     <div class="form-group">
-                        <label>Loai khoa hoc</label>
+                        <label>Loại khóa học</label>
                         <select th:field="*{courseTypeId}">
-                            <option value="">-- Chon loai khoa hoc --</option>
+                            <option value="">-- Chọn loại khóa học --</option>
                             <option th:each="type : ${courseTypes}"
                                     th:value="${type.id}"
                                     th:text="${type.typeName}">
@@ -50,7 +50,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Trang thai</label>
+                        <label>Trạng thái</label>
                         <select th:field="*{active}">
                             <option th:value="true">Dang su dung</option>
                             <option th:value="false">Ngung su dung</option>
@@ -65,8 +65,8 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Luu</button>
-                    <a th:href="@{/admin/courses}" class="btn btn-light">Huy</a>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <a th:href="@{/admin/courses}" class="btn btn-light">Hủy</a>
                 </div>
             </form>
         </section>

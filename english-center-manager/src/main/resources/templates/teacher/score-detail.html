@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhập điểm học viên</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{teacher/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{teacher/fragments/topbar :: topbar}"></div>
+
+        <section class="panel form-panel narrow">
+            <div class="panel-header">
+                <div>
+                    <h3 th:text="${classStudent.student.fullName}">Nhập điểm học viên</h3>
+                    <span th:text="${courseClass.className + ' - ' + courseClass.course.courseName}"></span>
+                </div>
+                <a th:href="@{/teacher/scores(classId=${courseClass.id})}" class="secondary-link">Quay lại bảng điểm</a>
+            </div>
+
+            <div th:if="${errorMessage}" class="flash-message error" th:text="${errorMessage}"></div>
+
+            <div class="empty-row" th:if="${#lists.isEmpty(scoreBoard.inputComponents)}">
+                Khóa học này chưa có thành phần điểm để nhập.
+            </div>
+
+            <form th:if="${not #lists.isEmpty(scoreBoard.inputComponents)}"
+                  th:action="@{/teacher/scores/{classId}/students/{studentId}(classId=${courseClass.id}, studentId=${classStudent.id})}"
+                  method="post"
+                  class="admin-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <div class="form-grid one-column">
+                    <div class="form-group" th:each="component : ${scoreBoard.inputComponents}">
+                        <label th:for="|score_${classStudent.id}_${component.id}|" th:text="${component.componentName}"></label>
+                        <input type="number"
+                               step="0.01"
+                               min="0"
+                               th:max="${component.maxScore}"
+                               th:id="|score_${classStudent.id}_${component.id}|"
+                               th:name="|score_${classStudent.id}_${component.id}|"
+                               th:value="${scoreBoard.scoreValue(classStudent.id, component.id)}"
+                               th:placeholder="${component.maxScore != null ? 'Tối đa ' + component.maxScore : 'Nhập điểm'}">
+                    </div>
+                </div>
+
+                <div class="summary-strip" style="margin-top: 18px;">
+                    <strong>Điểm trung bình hiện tại</strong>
+                    <span th:if="${scoreBoard.averageScore(classStudent.id) != null}"
+                          th:text="${#numbers.formatDecimal(scoreBoard.averageScore(classStudent.id), 1, 2)}"></span>
+                    <span th:if="${scoreBoard.averageScore(classStudent.id) == null}">Chưa đủ điểm</span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="action-button">Lưu điểm</button>
+                    <a th:href="@{/teacher/scores(classId=${courseClass.id})}" class="cancel-button">Hủy</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>
