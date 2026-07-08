@@ -41,6 +41,11 @@ public class SecurityConfig {
                 return;
             }
 
+            if (hasRole(authentication, "ROLE_STAFF") || hasRole(authentication, "ROLE_GIAO_VU")) {
+                response.sendRedirect("/staff");
+                return;
+            }
+
             response.sendRedirect("/home");
         };
     }
@@ -58,6 +63,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/images/**", "/js/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/staff", "/staff/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

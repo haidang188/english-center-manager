@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{staff/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{staff/fragments/topbar :: topbar}"></div>
+
+        <section class="stats-grid" aria-label="Tong quan giao vu">
+            <article class="stat-card accent-blue">
+                <p>Tong lop</p>
+                <h2 th:text="${totalClasses}">0</h2>
+                <span>Lop hoc trong he thong</span>
+            </article>
+
+            <article class="stat-card accent-green">
+                <p>Lop dang van hanh</p>
+                <h2 th:text="${activeClasses}">0</h2>
+                <span>Du kien, dang mo va dang hoc</span>
+            </article>
+
+            <article class="stat-card accent-orange">
+                <p>Luot ghi danh</p>
+                <h2 th:text="${totalClassStudents}">0</h2>
+                <span>Hoc vien theo tung lop</span>
+            </article>
+
+            <article class="stat-card accent-purple">
+                <p>Hoc phi chua nop</p>
+                <h2 th:text="${unpaidTuitions}">0</h2>
+                <span>Khoan hoc phi dang cho thu</span>
+            </article>
+        </section>
+
+        <section class="content-grid dashboard-grid">
+            <article class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>Cong viec giao vu</h3>
+                        <span>Cac thao tac thuong dung</span>
+                    </div>
+                </div>
+
+                <ul class="task-list">
+                    <li>Them hoc vien vao lop va tranh ghi danh trung.</li>
+                    <li>Tim kiem, loc trang thai va chuyen hoc vien sang lop khac.</li>
+                    <li>Nhap diem theo thanh phan diem cua khoa hoc.</li>
+                    <li>Tao dot hoc phi va sinh hoc phi cho hoc vien trong lop.</li>
+                </ul>
+            </article>
+
+            <article class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>Loi tat</h3>
+                        <span>Staff actions</span>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <a th:href="@{/staff/classes}">Quan ly lop hoc</a>
+                    <a th:href="@{/staff/scores}">Nhap diem hoc vien</a>
+                    <a th:href="@{/staff/tuition-batches}">Tao dot hoc phi</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel dashboard-classes">
+            <div class="panel-header">
+                <div>
+                    <h3>Lop moi nhat</h3>
+                    <span>Chon lop de quan ly hoc vien, diem va hoc phi</span>
+                </div>
+                <a th:href="@{/staff/classes}" class="secondary-link">Xem tat ca</a>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Ma lop</th>
+                        <th>Ten lop</th>
+                        <th>Khoa hoc</th>
+                        <th>Giao vien</th>
+                        <th>Hoc vien</th>
+                        <th>Trang thai</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="courseClass : ${recentClasses}">
+                        <td><strong th:text="${courseClass.classCode}"></strong></td>
+                        <td th:text="${courseClass.className}"></td>
+                        <td th:text="${courseClass.course.courseName}"></td>
+                        <td th:text="${courseClass.teacher.fullName}"></td>
+                        <td th:text="${classStudentRepository.countByCourseClass(courseClass)}"></td>
+                        <td><span class="status-badge active" th:text="${courseClass.status}"></span></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(recentClasses)}">
+                        <td colspan="6" class="empty-row">Chua co lop hoc nao</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoc vien trong lop - Staff</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{staff/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{staff/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3 th:text="${courseClass.className}">Lop hoc</h3>
+                    <span th:text="${courseClass.classCode} + ' - ' + ${courseClass.course.courseName}"></span>
+                </div>
+                <a th:href="@{/staff/classes}" class="secondary-link">Quay lai danh sach lop</a>
+            </div>
+
+            <div th:if="${successMessage}" class="flash-message success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="flash-message error" th:text="${errorMessage}"></div>
+
+            <form th:action="@{/staff/classes/{id}/students(id=${courseClass.id})}" method="get" class="filter-form advanced">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Tim ten, email, CCCD...">
+
+                <select name="status">
+                    <option value="">Tat ca trang thai</option>
+                    <option th:each="status : ${statuses}"
+                            th:value="${status}"
+                            th:selected="${selectedStatus != null and selectedStatus == status}"
+                            th:text="${status}">
+                    </option>
+                </select>
+
+                <button type="submit">Loc</button>
+                <a th:href="@{/staff/classes/{id}/students(id=${courseClass.id})}" class="cancel-button compact">Xoa loc</a>
+            </form>
+        </section>
+
+        <section class="panel dashboard-classes">
+            <div class="panel-header">
+                <div>
+                    <h3>Them hoc vien vao lop</h3>
+                    <span>He thong se chan them trung hoc vien vao cung mot lop</span>
+                </div>
+            </div>
+
+            <form th:action="@{/staff/classes/{id}/students(id=${courseClass.id})}" method="post" class="filter-form advanced">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <select name="studentId" required>
+                    <option value="">Chon hoc vien</option>
+                    <option th:each="student : ${students}"
+                            th:value="${student.id}"
+                            th:text="${student.fullName} + ' - ' + ${student.email}">
+                    </option>
+                </select>
+
+                <input type="date" name="joinedAt" th:value="${today}">
+                <button type="submit">Them vao lop</button>
+            </form>
+        </section>
+
+        <section class="panel dashboard-classes">
+            <div class="panel-header">
+                <div>
+                    <h3>Danh sach hoc vien</h3>
+                    <span>Cap nhat trang thai hoc tap va chuyen lop</span>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Hoc vien</th>
+                        <th>Thong tin</th>
+                        <th>Ngay vao</th>
+                        <th>Ngay roi</th>
+                        <th>Trang thai</th>
+                        <th>Cap nhat</th>
+                        <th>Chuyen lop</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="classStudent : ${classStudents}">
+                        <td>
+                            <strong th:text="${classStudent.student.fullName}"></strong>
+                            <small th:text="${classStudent.student.email}"></small>
+                        </td>
+                        <td>
+                            <span th:text="${classStudent.student.phoneNumber}"></span>
+                            <small th:text="${classStudent.student.identityNumber != null ? classStudent.student.identityNumber : 'Chua co CCCD'}"></small>
+                        </td>
+                        <td th:text="${classStudent.joinedAt}"></td>
+                        <td th:text="${classStudent.leftAt != null ? classStudent.leftAt : '-'}"></td>
+                        <td><span class="status-badge active" th:text="${classStudent.status}"></span></td>
+                        <td>
+                            <form th:action="@{/staff/classes/{classId}/students/{id}/status(classId=${courseClass.id}, id=${classStudent.id})}"
+                                  method="post"
+                                  class="inline-form">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <select name="status" class="compact-select">
+                                    <option th:each="status : ${statuses}"
+                                            th:value="${status}"
+                                            th:selected="${classStudent.status == status}"
+                                            th:text="${status}">
+                                    </option>
+                                </select>
+                                <input type="text" name="note" placeholder="Ghi chu" class="compact-select">
+                                <button type="submit" class="small-button success">Luu</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form th:action="@{/staff/classes/{classId}/students/{id}/transfer(classId=${courseClass.id}, id=${classStudent.id})}"
+                                  method="post"
+                                  class="inline-form">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <select name="targetClassId" class="compact-select" required>
+                                    <option value="">Chon lop</option>
+                                    <option th:each="targetClass : ${classes}"
+                                            th:value="${targetClass.id}"
+                                            th:text="${targetClass.classCode} + ' - ' + ${targetClass.className}">
+                                    </option>
+                                </select>
+                                <input type="text" name="note" placeholder="Ly do" class="compact-select">
+                                <button type="submit" class="small-button warning">Chuyen</button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(classStudents)}">
+                        <td colspan="7" class="empty-row">Chua co hoc vien phu hop</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
