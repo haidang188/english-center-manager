@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử học phí</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{student/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{student/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Lịch sử đóng học phí</h3>
+                    <span th:text="${tuition.tuitionBatch.courseClass.className}"></span>
+                </div>
+                <a th:href="@{/student/tuition}" class="secondary-link">Quay lại</a>
+            </div>
+
+            <div class="stats-grid role-stats-grid three">
+                <div class="stat-card accent-blue">
+                    <p>Số tiền cần đóng</p>
+                    <h2 style="font-size: 22px;" th:text="${#numbers.formatDecimal(tuition.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></h2>
+                    <span>Khoản học phí của lớp</span>
+                </div>
+                <div class="stat-card accent-orange">
+                    <p>Hạn đóng</p>
+                    <h2 style="font-size: 22px;" th:text="${tuition.tuitionBatch.dueDate}"></h2>
+                    <span>Thời hạn thanh toán</span>
+                </div>
+                <div class="stat-card accent-green">
+                    <p>Trạng thái</p>
+                    <h2 style="font-size: 22px;" th:text="${tuition.status}"></h2>
+                    <span>Tình trạng hiện tại</span>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Số tiền</th>
+                        <th>Ngày đóng</th>
+                        <th>Phương thức</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="history : ${histories}">
+                        <td th:text="${#numbers.formatDecimal(history.paidAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                        <td th:text="${history.paidAt}"></td>
+                        <td th:text="${history.paymentMethod}"></td>
+                        <td th:text="${history.note}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(histories)}">
+                        <td colspan="4" class="empty-row">Chưa có giao dịch nào cho khoản học phí này.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

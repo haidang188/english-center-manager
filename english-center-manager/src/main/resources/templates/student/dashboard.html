@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học viên</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{student/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{student/fragments/topbar :: topbar}"></div>
+
+        <section class="role-hero student-hero">
+            <div>
+                <p class="eyebrow">Xin chào</p>
+                <h2 th:text="${student.fullName}">Học viên</h2>
+                <span>Xem lớp đang học, điểm số và học phí của bạn.</span>
+            </div>
+            <div class="role-hero-actions">
+                <a th:href="@{/student/classes}" class="action-button">Lớp học của tôi</a>
+                <a th:href="@{/student/scores}" class="secondary-link">Điểm số</a>
+                <a th:href="@{/student/tuition}" class="secondary-link">Học phí</a>
+            </div>
+        </section>
+
+        <div class="stats-grid role-stats-grid three">
+            <div class="stat-card accent-blue">
+                <p>Lớp đang học</p>
+                <h2 th:text="${activeClassCount}">0</h2>
+                <span>Số lớp có trạng thái đang học</span>
+            </div>
+            <div class="stat-card accent-orange">
+                <p>Học phí cần chú ý</p>
+                <h2 th:text="${unpaidTuitionCount}">0</h2>
+                <span>Khoản chưa đóng hoặc quá hạn</span>
+            </div>
+            <div class="stat-card accent-green">
+                <p>Hồ sơ học tập</p>
+                <h2>Điểm</h2>
+                <span>Theo dõi kết quả theo từng lớp</span>
+            </div>
+        </div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Lớp học hiện tại</h3>
+                    <span>Danh sách lớp và khóa học đang tham gia.</span>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Lớp</th>
+                        <th>Khóa học</th>
+                        <th>Giảng viên</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${enrollments}">
+                        <td th:text="${item.courseClass.className}"></td>
+                        <td th:text="${item.courseClass.course.courseName}"></td>
+                        <td th:text="${item.courseClass.teacher.fullName}"></td>
+                        <td><span class="status-badge" th:text="${item.status}"></span></td>
+                        <td>
+                            <a th:href="@{/student/classes/{id}(id=${item.id})}" class="small-button detail">Chi tiết</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(enrollments)}">
+                        <td colspan="5" class="empty-row">Bạn chưa tham gia lớp học nào.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

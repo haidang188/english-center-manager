@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ public class AdminScheduleController {
         model.addAttribute("rooms", roomService.findAllActive());
         model.addAttribute("days", Arrays.asList(enums.DayOfWeek.values()));
         model.addAttribute("dayLabels", buildDayLabels());
+        model.addAttribute("dayColumns", buildDayColumns());
         model.addAttribute("scheduleRows", buildScheduleRows(schedules));
         model.addAttribute("selectedClassId", classId);
         model.addAttribute("selectedRoomId", roomId);
@@ -210,6 +212,7 @@ public class AdminScheduleController {
         model.addAttribute("rooms", roomService.findAllActive());
         model.addAttribute("days", enums.DayOfWeek.values());
         model.addAttribute("dayLabels", buildDayLabels());
+        model.addAttribute("dayColumns", buildDayColumns());
     }
 
     private ClassSchedule toEntity(ClassScheduleForm form) {
@@ -283,6 +286,31 @@ public class AdminScheduleController {
         return dayLabels;
     }
 
+    private List<DayColumn> buildDayColumns() {
+        Map<enums.DayOfWeek, String> dayLabels = buildDayLabels();
+        return Arrays.stream(enums.DayOfWeek.values())
+                .map(day -> new DayColumn(day, dayLabels.get(day)))
+                .toList();
+    }
+
+    public static class DayColumn {
+        private final enums.DayOfWeek day;
+        private final String label;
+
+        public DayColumn(enums.DayOfWeek day, String label) {
+            this.day = day;
+            this.label = label;
+        }
+
+        public enums.DayOfWeek getDay() {
+            return day;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+    }
+
     public static class ScheduleBoardRow {
         private final String timeLabel;
         private final Map<enums.DayOfWeek, List<ClassSchedule>> schedulesByDay;
@@ -298,6 +326,10 @@ public class AdminScheduleController {
 
         public Map<enums.DayOfWeek, List<ClassSchedule>> getSchedulesByDay() {
             return schedulesByDay;
+        }
+
+        public List<ClassSchedule> getSchedulesForDay(enums.DayOfWeek day) {
+            return schedulesByDay.getOrDefault(day, Collections.emptyList());
         }
     }
 }

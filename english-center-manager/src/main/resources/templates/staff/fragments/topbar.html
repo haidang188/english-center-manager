@@ -1,50 +1,21 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
+<header class="admin-topbar" th:fragment="topbar">
+    <div>
+        <p class="eyebrow">Staff Dashboard</p>
+        <h1>Quản lý giáo vụ</h1>
+    </div>
 
-<header class="admin-topbar"
-        th:fragment="topbar">
-
-  <div>
-
-    <p class="eyebrow">
-      Staff Dashboard
-    </p>
-
-    <h1 class="staff-title">
-      Quản lý học viên lớp học
-    </h1>
-
-  </div>
-
-  <div class="topbar-actions">
-
-    <label class="search-box">
-
-      <input type="text"
-             placeholder="Tìm kiếm...">
-
-    </label>
-
-    <form th:action="@{/logout}"
-          method="post">
-
-      <input type="hidden"
-             th:name="${_csrf.parameterName}"
-             th:value="${_csrf.token}">
-
-      <button type="submit"
-              class="logout-button">
-
-        Logout
-
-      </button>
-
-    </form>
-
-  </div>
-
+    <div class="topbar-actions">
+        <label class="search-box">
+            <input type="text" placeholder="Tìm kiếm nhanh...">
+        </label>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="logout-button">Đăng xuất</button>
+        </form>
+    </div>
 </header>
-
 </body>
 </html>

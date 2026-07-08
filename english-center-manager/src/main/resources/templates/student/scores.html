@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điểm số</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{student/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{student/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Điểm số</h3>
+                    <span>Xem điểm của mình theo từng lớp.</span>
+                </div>
+                <a th:href="@{/student}" class="secondary-link">Dashboard</a>
+            </div>
+
+            <div th:each="scoreView : ${scoreViews}" class="table-wrapper" style="margin-bottom: 22px;">
+                <div class="panel-header">
+                    <div>
+                        <h3 th:text="${scoreView.enrollment.courseClass.className}"></h3>
+                        <span th:text="${scoreView.enrollment.courseClass.course.courseName}"></span>
+                    </div>
+                    <a th:href="@{/student/classes/{id}(id=${scoreView.enrollment.id})}" class="small-button detail">Chi tiết lớp</a>
+                </div>
+
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Bảng điểm</th>
+                        <th>Ngày</th>
+                        <th>Điểm trung bình</th>
+                        <th>Thành phần</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="scoreGroup : ${scoreView.scoreGroups}">
+                        <td th:text="${scoreGroup.examSession.examName}"></td>
+                        <td th:text="${scoreGroup.examSession.examDate}"></td>
+                        <td th:text="${scoreGroup.averageScore != null ? scoreGroup.averageScore : 'Chưa đủ điểm'}"></td>
+                        <td>
+                            <span th:each="entry : ${scoreGroup.entries}"
+                                  th:text="|${entry.scoreComponent.componentName}: ${entry.scoreValue} |"></span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(scoreView.scoreGroups)}">
+                        <td colspan="4" class="empty-row">Chưa có điểm.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${#lists.isEmpty(scoreViews)}" class="empty-row">Bạn chưa tham gia lớp học nào.</div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

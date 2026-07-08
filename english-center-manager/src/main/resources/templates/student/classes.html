@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lớp học của tôi</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{student/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{student/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Lớp học của tôi</h3>
+                    <span>Xem lớp học và khóa học đang tham gia.</span>
+                </div>
+                <a th:href="@{/student}" class="secondary-link">Dashboard</a>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Mã lớp</th>
+                        <th>Tên lớp</th>
+                        <th>Khóa học</th>
+                        <th>Giảng viên</th>
+                        <th>Ngày vào lớp</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${enrollments}">
+                        <td th:text="${item.courseClass.classCode}"></td>
+                        <td th:text="${item.courseClass.className}"></td>
+                        <td th:text="${item.courseClass.course.courseName}"></td>
+                        <td th:text="${item.courseClass.teacher.fullName}"></td>
+                        <td th:text="${item.joinedAt}"></td>
+                        <td><span class="status-badge" th:text="${item.status}"></span></td>
+                        <td>
+                            <a th:href="@{/student/classes/{id}(id=${item.id})}" class="small-button detail">Chi tiết</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(enrollments)}">
+                        <td colspan="7" class="empty-row">Bạn chưa tham gia lớp học nào.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -63,20 +63,20 @@
                     <thead>
                     <tr>
                         <th>Giờ học</th>
-                        <th th:each="day : ${days}" th:text="${dayLabels[day]}"></th>
+                        <th th:each="dayColumn : ${dayColumns}" th:text="${dayColumn.label}"></th>
                     </tr>
                     </thead>
 
                     <tbody>
                     <tr th:each="row : ${scheduleRows}">
                         <th th:text="${row.timeLabel}"></th>
-                        <td th:each="day : ${days}" th:with="cellSchedules=${row.schedulesByDay[day]}">
+                        <td th:each="dayColumn : ${dayColumns}" th:with="cellSchedules=${row.getSchedulesForDay(dayColumn.day)}">
                             <div th:if="${#lists.isEmpty(cellSchedules)}" class="calendar-empty">
                                 Trống
                             </div>
 
                             <div th:each="schedule : ${cellSchedules}" class="calendar-event">
-                                <strong th:text="${schedule.room.roomCode + ' - ' + schedule.courseClass.teacher.fullName}"></strong>
+                                <strong th:text="|${schedule.room.roomCode} - ${schedule.courseClass.teacher.fullName}|"></strong>
                                 <span th:text="${schedule.courseClass.className}"></span>
                                 <small th:text="${schedule.courseClass.course.courseName}"></small>
                             </div>
@@ -84,7 +84,7 @@
                     </tr>
 
                     <tr th:if="${#lists.isEmpty(scheduleRows)}">
-                        <td th:attr="colspan=${#lists.size(days) + 1}" class="empty-row">
+                        <td th:colspan="${#lists.size(dayColumns) + 1}" class="empty-row">
                             Chưa có lịch học phù hợp.
                         </td>
                     </tr>
@@ -95,8 +95,8 @@
             <div class="schedule-action-list">
                 <div class="schedule-action-card" th:each="schedule : ${schedules}">
                     <div>
-                        <strong th:text="${dayLabels[schedule.dayOfWeek] + ', ' + schedule.startTime + ' - ' + schedule.endTime}"></strong>
-                        <span th:text="${schedule.room.roomCode + ' - ' + schedule.courseClass.teacher.fullName + ' - ' + schedule.courseClass.className}"></span>
+                        <strong th:text="|${dayLabels[schedule.dayOfWeek]}, ${schedule.startTime} - ${schedule.endTime}|"></strong>
+                        <span th:text="|${schedule.room.roomCode} - ${schedule.courseClass.teacher.fullName} - ${schedule.courseClass.className}|"></span>
                     </div>
 
                     <div class="table-actions">
@@ -127,7 +127,7 @@
                     <tbody>
                     <tr th:each="schedule : ${schedules}">
                         <td th:text="${dayLabels[schedule.dayOfWeek]}"></td>
-                        <td th:text="${schedule.startTime + ' - ' + schedule.endTime}"></td>
+                        <td th:text="|${schedule.startTime} - ${schedule.endTime}|"></td>
                         <td th:text="${schedule.courseClass.className}"></td>
                         <td th:text="${schedule.courseClass.course.courseName}"></td>
                         <td th:text="${schedule.courseClass.teacher.fullName}"></td>

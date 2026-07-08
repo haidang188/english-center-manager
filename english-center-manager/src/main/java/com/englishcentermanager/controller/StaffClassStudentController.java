@@ -4,7 +4,6 @@ import com.englishcentermanager.dto.AddStudentForm;
 import com.englishcentermanager.dto.TransferStudentForm;
 import com.englishcentermanager.dto.UpdateStudentStatusForm;
 import com.englishcentermanager.entity.ClassStudent;
-import com.englishcentermanager.entity.CourseClass;
 import com.englishcentermanager.entity.User;
 import com.englishcentermanager.entity.enums;
 import com.englishcentermanager.service.StaffClassStudentService;
@@ -19,28 +18,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
-
 @Controller
 @RequestMapping("/staff")
 @RequiredArgsConstructor
 public class StaffClassStudentController {
     private final StaffClassStudentService staffClassStudentService;
-
-    @GetMapping({"", "/"})
-    public String dashboard() {
-        return "redirect:/staff/classes";
-    }
-
-    @GetMapping("/classes")
-    public String viewClasses(@RequestParam(required = false) String keyword, Model model) {
-        List<CourseClass> classes = staffClassStudentService.getAllClasses(keyword);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("classes", classes);
-
-        return "staff/classes";
-    }
 
     @GetMapping("/classes/{classId}/students")
     public String viewStudents(@PathVariable Long classId,

@@ -59,9 +59,9 @@
                         <label>Thứ</label>
                         <select th:field="*{dayOfWeek}">
                             <option value="">-- Chọn thứ --</option>
-                            <option th:each="day : ${days}"
-                                    th:value="${day}"
-                                    th:text="${dayLabels[day]}">
+                            <option th:each="dayColumn : ${dayColumns}"
+                                    th:value="${dayColumn.day}"
+                                    th:text="${dayColumn.label}">
                             </option>
                         </select>
                         <p class="field-error" th:if="${#fields.hasErrors('dayOfWeek')}" th:errors="*{dayOfWeek}"></p>

@@ -478,7 +478,7 @@ body {
     min-height: 100vh;
     padding: 24px 18px;
     color: #ffffff;
-    background: linear-gradient(180deg, rgba(83, 102, 216, 0.98), rgba(195, 76, 184, 0.94));
+    background: linear-gradient(180deg, rgba(61, 86, 214, 0.98), rgba(34, 181, 159, 0.94));
 }
 
 .brand {
@@ -676,6 +676,77 @@ body {
 
 .accent-purple {
     color: #c34cb8;
+}
+
+.teacher-sidebar {
+    background: linear-gradient(180deg, rgba(61, 86, 214, 0.98), rgba(34, 181, 159, 0.94));
+}
+
+.student-sidebar {
+    background: linear-gradient(180deg, rgba(83, 102, 216, 0.98), rgba(87, 185, 71, 0.92));
+}
+
+.staff-sidebar {
+    background: linear-gradient(180deg, rgba(61, 86, 214, 0.98), rgba(34, 181, 159, 0.94));
+}
+
+.role-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 26px;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 14px 34px rgba(37, 53, 85, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.role-hero::after {
+    content: "";
+    position: absolute;
+    right: -42px;
+    bottom: -52px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.12;
+}
+
+.role-hero h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+}
+
+.role-hero span {
+    color: #6d7788;
+}
+
+.role-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.teacher-hero {
+    color: #5366d8;
+}
+
+.student-hero {
+    color: #57b947;
+}
+
+.role-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.role-stats-grid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .content-grid {
@@ -932,6 +1003,10 @@ body {
 
 .small-button.edit {
     background: #5366d8;
+}
+
+.small-button.detail {
+    background: #22b59f;
 }
 
 .small-button.danger {

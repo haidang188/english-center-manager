@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lớp phụ trách</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <div th:replace="~{teacher/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+        <div th:replace="~{teacher/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Lớp phụ trách</h3>
+                    <span>Xem danh sách lớp mình được phân công.</span>
+                </div>
+                <a th:href="@{/teacher}" class="secondary-link">Dashboard</a>
+            </div>
+
+            <form th:action="@{/teacher/classes}" method="get" class="filter-form advanced">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm theo mã lớp, tên lớp, khóa học">
+                <button type="submit">Tìm kiếm</button>
+                <a th:href="@{/teacher/classes}" class="cancel-button compact">Xóa lọc</a>
+            </form>
+
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Mã lớp</th>
+                        <th>Tên lớp</th>
+                        <th>Khóa học</th>
+                        <th>Học viên</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="courseClass : ${classes}">
+                        <td th:text="${courseClass.classCode}"></td>
+                        <td th:text="${courseClass.className}"></td>
+                        <td th:text="${courseClass.course.courseName}"></td>
+                        <td th:text="${classStudentRepository.countByCourseClass(courseClass)}"></td>
+                        <td><span class="status-badge" th:text="${courseClass.status}"></span></td>
+                        <td class="table-actions">
+                            <a th:href="@{/teacher/classes/{id}/students(id=${courseClass.id})}" class="small-button detail">Học viên</a>
+                            <a th:href="@{/teacher/scores(classId=${courseClass.id})}" class="small-button edit">Điểm</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(classes)}">
+                        <td colspan="6" class="empty-row">Không có lớp phù hợp.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -3,9 +3,7 @@ package com.englishcentermanager.config;
 import com.englishcentermanager.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +14,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 @Configuration
 public class SecurityConfig {
-
     private final CustomUserDetailsService customUserDetailsService;
 
     public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
@@ -30,29 +27,22 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(customUserDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
     }
 
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
-
             if (hasRole(authentication, "ROLE_ADMIN")) {
                 response.sendRedirect("/admin");
                 return;
             }
 
-            if (hasRole(authentication, "ROLE_STAFF")) {
-                response.sendRedirect("/staff/classes");
+            if (hasRole(authentication, "ROLE_STAFF") || hasRole(authentication, "ROLE_GIAO_VU")) {
+                response.sendRedirect("/staff");
                 return;
             }
 
@@ -70,11 +60,10 @@ public class SecurityConfig {
         };
     }
 
-    private boolean hasRole(Authentication authentication, String role) {
-        return authentication.getAuthorities()
-                .stream()
+    private boolean hasRole(Authentication authentication, String roleName) {
+        return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(role::equals);
+                .anyMatch(roleName::equals);
     }
 
     @Bean
@@ -83,9 +72,7 @@ public class SecurityConfig {
 
         http
                 .authenticationProvider(authenticationProvider())
-
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers(
                                 "/",
                                 "/home",
@@ -96,16 +83,19 @@ public class SecurityConfig {
                                 "/images/**"
                         ).permitAll()
 
-                        .requestMatchers("/staff/**")
-                        .hasRole("STAFF")
-
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
 
-                        .requestMatchers("/teacher/**")
+                        .requestMatchers("/staff", "/staff/**")
+                        .hasAnyRole("STAFF", "GIAO_VU")
+
+                        .requestMatchers("/giaovu", "/giaovu/**")
+                        .hasRole("GIAO_VU")
+
+                        .requestMatchers("/teacher", "/teacher/**")
                         .hasRole("TEACHER")
 
-                        .requestMatchers("/student/**")
+                        .requestMatchers("/student", "/student/**")
                         .hasRole("STUDENT")
 
                         .anyRequest()
@@ -115,30 +105,18 @@ public class SecurityConfig {
                 .formLogin(form -> form
 
                         .loginPage("/login")
-
                         .loginProcessingUrl("/login")
-
                         .usernameParameter("email")
-
                         .passwordParameter("password")
-
                         .successHandler(authenticationSuccessHandler())
-
                         .failureUrl("/login?error=true")
-
                         .permitAll()
                 )
-
                 .logout(logout -> logout
-
                         .logoutUrl("/logout")
-
                         .logoutSuccessUrl("/login?logout=true")
-
                         .invalidateHttpSession(true)
-
                         .deleteCookies("JSESSIONID")
-
                         .permitAll()
                 );
 

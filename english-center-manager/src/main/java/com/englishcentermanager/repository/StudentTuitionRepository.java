@@ -21,6 +21,8 @@ public interface StudentTuitionRepository extends JpaRepository<StudentTuition, 
 
     Optional<StudentTuition> findByTuitionBatchAndStudent(TuitionBatch tuitionBatch, User student);
 
+    List<StudentTuition> findByStudentOrderByCreatedAtDesc(User student);
+
     @Query("""
     SELECT st
     FROM StudentTuition st
@@ -36,9 +38,17 @@ public interface StudentTuitionRepository extends JpaRepository<StudentTuition, 
             @Param("keyword") String keyword,
             Pageable pageable
     );
+    @Query("""
+            select studentTuition
+            from StudentTuition studentTuition
+            where studentTuition.tuitionBatch = :tuitionBatch
+            order by studentTuition.student.fullName asc
+            """)
+    List<StudentTuition> findByTuitionBatchOrderByStudentName(@Param("tuitionBatch") TuitionBatch tuitionBatch);
 
     long countByTuitionBatchAndStatus(TuitionBatch tuitionBatch, enums.TuitionStatus status);
 
     long countByTuitionBatch(TuitionBatch tuitionBatch);
 
+    long countByStatus(enums.TuitionStatus status);
 }
