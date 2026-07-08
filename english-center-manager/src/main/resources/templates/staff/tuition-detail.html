@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Chi tiết đợt học phí</title>
+
+  <link rel="stylesheet"
+        th:href="@{/css/admin.css}">
+
+  <link rel="stylesheet"
+        th:href="@{/css/staff.css}">
+
+</head>
+
+<body>
+
+<div class="admin-shell">
+
+  <div th:replace="~{staff/fragments/sidebar :: sidebar}"></div>
+
+  <main class="admin-main">
+
+    <div th:replace="~{staff/fragments/topbar :: topbar}"></div>
+
+    <section class="panel">
+
+      <div class="panel-header">
+
+        <div>
+
+          <h3 class="staff-title">
+
+            Chi tiết đợt học phí
+
+          </h3>
+
+          <span>
+
+                        Theo dõi tình trạng đóng học phí của học viên
+
+                    </span>
+
+        </div>
+
+        <a th:href="@{/staff/tuition-batches}"
+           class="cancel-button">
+
+          Quay lại
+
+        </a>
+
+      </div>
+
+      <div th:if="${successMessage}"
+           class="flash-message success"
+           th:text="${successMessage}">
+      </div>
+
+      <div th:if="${errorMessage}"
+           class="flash-message error"
+           th:text="${errorMessage}">
+      </div>
+
+      <!-- =========================
+     Batch Information
+========================= -->
+
+      <div class="class-info">
+
+        <div class="class-info-card">
+
+          <h4>Lớp học</h4>
+
+          <p th:text="${batch.courseClass.classCode}"></p>
+
+        </div>
+
+        <div class="class-info-card">
+
+          <h4>Tên lớp</h4>
+
+          <p th:text="${batch.courseClass.className}"></p>
+
+        </div>
+
+        <div class="class-info-card">
+
+          <h4>Học phí</h4>
+
+          <p th:text="${#numbers.formatDecimal(batch.amount,0,'COMMA',0,'POINT')} + ' VNĐ'"></p>
+
+        </div>
+
+        <div class="class-info-card">
+
+          <h4>Hạn đóng</h4>
+
+          <p th:text="${#temporals.format(batch.dueDate,'dd/MM/yyyy')}"></p>
+
+        </div>
+
+      </div>
+
+      <form method="get"
+            th:action="@{/staff/tuition-batches/{id}(id=${batch.id})}"
+            class="filter-form advanced">
+
+        <input type="text"
+               name="keyword"
+               th:value="${keyword}"
+               placeholder="Tìm theo tên học viên">
+
+        <button type="submit">
+
+          Tìm kiếm
+
+        </button>
+
+        <a th:href="@{/staff/tuition-batches/{id}(id=${batch.id})}"
+           class="cancel-button compact">
+
+          Xóa lọc
+
+        </a>
+
+      </form>
+
+      <div class="table-wrapper">
+
+        <table class="admin-table">
+
+          <thead>
+
+          <tr>
+
+            <th>Học viên</th>
+
+            <th>Số tiền</th>
+
+            <th>Trạng thái</th>
+
+            <th>Ngày đóng</th>
+
+            <th>Thao tác</th>
+
+          </tr>
+
+          </thead>
+
+          <tbody>
+
+          <tr th:each="item : ${studentTuitions}">
+
+            <td>
+
+              <strong th:text="${item.student.fullName}"></strong>
+
+              <small th:text="${item.student.email}"></small>
+
+            </td>
+
+            <td
+                    th:text="${#numbers.formatDecimal(item.amount,0,'COMMA',0,'POINT')} + ' VNĐ'">
+            </td>
+
+            <td>
+
+                <span class="status-badge"
+
+                      th:classappend="${#strings.toLowerCase(item.status.name())}"
+
+                      th:text="${item.status}">
+                </span>
+
+            </td>
+
+            <td>
+
+                <span th:if="${item.paidAt!=null}"
+                      th:text="${#temporals.format(item.paidAt,'dd/MM/yyyy HH:mm')}">
+                </span>
+
+              <span th:unless="${item.paidAt!=null}">
+
+                    --
+
+                </span>
+
+            </td>
+
+            <td class="table-actions">
+
+              <a class="small-button success"
+
+                 th:href="@{/staff/student-tuitions/{id}/payment(id=${item.id})}">
+
+                Thanh toán
+
+              </a>
+
+              <a class="small-button detail"
+
+                 th:href="@{/staff/student-tuitions/{id}/history(id=${item.id})}">
+
+                Lịch sử
+
+              </a>
+
+            </td>
+
+          </tr>
+
+          <tr th:if="${#lists.isEmpty(studentTuitions)}">
+
+            <td colspan="5"
+                class="empty-row">
+
+              Chưa có học viên nào.
+
+            </td>
+
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+
+</html>

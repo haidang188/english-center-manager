@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Quản lý học viên lớp
+    </title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/staff.css}">
+
+</head>
+
+<body>
+
+<div class="admin-shell">
+
+    <!-- Sidebar -->
+    <div th:replace="~{staff/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+
+        <!-- Topbar -->
+        <div th:replace="~{staff/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h3 class="staff-title">
+
+                        Quản lý học viên lớp
+
+                    </h3>
+
+                    <span>
+
+                        Danh sách học viên đang học trong lớp
+
+                    </span>
+
+                </div>
+
+                <a class="action-button"
+
+                   th:href="@{/staff/classes}">
+
+                    Quay lại
+
+                </a>
+
+            </div>
+
+            <!-- Flash -->
+
+            <div th:if="${successMessage}"
+                 class="flash-message success"
+                 th:text="${successMessage}">
+            </div>
+
+            <div th:if="${errorMessage}"
+                 class="flash-message error"
+                 th:text="${errorMessage}">
+            </div>
+
+            <!-- =========================
+                 Class Information
+            ========================= -->
+
+            <div class="class-info">
+
+                <div class="class-info-card">
+
+                    <h4>Mã lớp</h4>
+
+                    <p th:text="${courseClass.classCode}"></p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Tên lớp</h4>
+
+                    <p th:text="${courseClass.className}"></p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Giảng viên</h4>
+
+                    <p th:text="${courseClass.teacher.fullName}"></p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Khóa học</h4>
+
+                    <p th:text="${courseClass.course.courseName}"></p>
+
+                </div>
+
+            </div>
+
+            <!-- =========================
+     Search & Action
+========================= -->
+
+            <div class="student-summary">
+
+                <div class="student-count">
+
+                    Tổng số học viên:
+                    <strong th:text="${#lists.size(students)}">0</strong>
+
+                </div>
+
+                <a th:href="@{/staff/classes/{id}/students/add(id=${courseClass.id})}"
+                   class="action-button">
+
+                    + Thêm học viên
+
+                </a>
+
+            </div>
+
+            <form th:action="@{/staff/classes/{id}/students(id=${courseClass.id})}"
+                  method="get"
+                  class="filter-form advanced">
+
+                <input type="text"
+                       name="keyword"
+                       th:value="${keyword}"
+                       class="staff-search"
+                       placeholder="Tìm theo họ tên hoặc email">
+
+                <select name="status">
+
+                    <option value="">Tất cả trạng thái</option>
+
+                    <option th:each="item : ${studentStatuses}"
+                            th:value="${item}"
+                            th:text="${item}"
+                            th:selected="${selectedStatus == item}">
+                    </option>
+
+                </select>
+
+                <button type="submit">
+
+                    Tìm kiếm
+
+                </button>
+
+                <a th:href="@{/staff/classes/{id}/students(id=${courseClass.id})}"
+                   class="cancel-button compact">
+
+                    Xóa lọc
+
+                </a>
+
+            </form>
+
+            <!-- =========================
+     Student List
+========================= -->
+
+            <div class="table-wrapper">
+
+                <table class="admin-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>STT</th>
+
+                        <th>Học viên</th>
+
+                        <th>Email</th>
+
+                        <th>Số điện thoại</th>
+
+                        <th>Ngày vào lớp</th>
+
+                        <th>Trạng thái</th>
+
+                        <th>Thao tác</th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="student, stat : ${students}">
+
+                        <!-- STT -->
+                        <td th:text="${stat.count}"></td>
+
+                        <!-- Họ tên -->
+                        <td>
+
+                            <strong class="student-name"
+                                    th:text="${student.student.fullName}">
+                            </strong>
+
+                            <small class="student-email"
+                                   th:text="${student.student.identityNumber}">
+                            </small>
+
+                        </td>
+
+                        <!-- Email -->
+                        <td th:text="${student.student.email}">
+                        </td>
+
+                        <!-- Phone -->
+                        <td th:text="${student.student.phoneNumber}">
+                        </td>
+
+                        <!-- Ngày vào lớp -->
+                        <td
+                                th:text="${#temporals.format(student.joinedAt,'dd/MM/yyyy')}">
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+
+                <span class="status-badge student-status"
+
+                      th:classappend="${#strings.toLowerCase(student.status.name())}"
+
+                      th:text="${student.status}">
+
+                </span>
+
+                        </td>
+
+                        <!-- Action -->
+                        <td class="table-actions">
+
+                            <!-- Đổi trạng thái -->
+
+                            <a class="small-button status"
+
+                               th:href="@{/staff/class-students/{id}/status(id=${student.id})}">
+
+                                Trạng thái
+
+                            </a>
+
+                            <!-- Chuyển lớp -->
+
+                            <a class="small-button transfer"
+
+                               th:href="@{/staff/class-students/transfer(studentId=${student.student.id},fromClassId=${courseClass.id})}">
+
+                                Chuyển lớp
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- Empty -->
+
+                    <tr th:if="${#lists.isEmpty(students)}">
+
+                        <td colspan="7"
+                            class="empty-row">
+
+                            Chưa có học viên trong lớp.
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+            <!-- =========================
+     Pagination
+========================= -->
+
+            <div class="pagination"
+                 th:if="${studentsPage != null and studentsPage.totalPages > 1}">
+
+                <a th:classappend="${studentsPage.first} ? ' disabled'"
+                   th:href="@{/staff/classes/{id}/students(
+            id=${courseClass.id},
+            page=${studentsPage.number - 1},
+            keyword=${keyword},
+            status=${selectedStatus})}">
+
+                    Trước
+
+                </a>
+
+                <span th:each="pageNumber : ${#numbers.sequence(0, studentsPage.totalPages - 1)}">
+
+        <a th:text="${pageNumber + 1}"
+
+           th:classappend="${pageNumber == studentsPage.number} ? ' active'"
+
+           th:href="@{/staff/classes/{id}/students(
+                    id=${courseClass.id},
+                    page=${pageNumber},
+                    keyword=${keyword},
+                    status=${selectedStatus})}">
+        </a>
+
+    </span>
+
+                <a th:classappend="${studentsPage.last} ? ' disabled'"
+
+                   th:href="@{/staff/classes/{id}/students(
+            id=${courseClass.id},
+            page=${studentsPage.number + 1},
+            keyword=${keyword},
+            status=${selectedStatus})}">
+
+                    Sau
+
+                </a>
+
+            </div>
+
+
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

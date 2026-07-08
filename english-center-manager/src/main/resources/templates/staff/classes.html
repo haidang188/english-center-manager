@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý lớp học</title>
+
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin.css}">
+
+
+    <link rel="stylesheet"
+          th:href="@{/css/staff.css}">
+</head>
+
+<body>
+
+<div class="admin-shell">
+
+    <div th:replace="~{staff/fragments/sidebar :: sidebar}"></div>
+    <main class="admin-main">
+
+        <div th:replace="~{staff/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h3 class="staff-title">
+                        Quản lý lớp học
+                    </h3>
+
+                    <span>
+                        Quản lý danh sách lớp học và học viên trong từng lớp
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <a th:href="@{/staff/classes}"
+                       class="action-button">
+
+                        Làm mới
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div th:if="${successMessage}"
+                 class="flash-message success"
+                 th:text="${successMessage}">
+            </div>
+
+            <div th:if="${errorMessage}"
+                 class="flash-message error"
+                 th:text="${errorMessage}">
+            </div>
+
+
+
+            <form th:action="@{/staff/classes}"
+                  method="get"
+                  class="filter-form advanced">
+
+                <input type="text"
+                       name="keyword"
+                       th:value="${keyword}"
+                       placeholder="Tìm theo mã lớp hoặc tên lớp">
+
+                <button type="submit">
+
+                    Tìm kiếm
+
+                </button>
+
+                <a th:href="@{/staff/classes}"
+                   class="cancel-button compact">
+
+                    Xóa lọc
+
+                </a>
+
+            </form>
+
+            <div class="class-info">
+
+                <div class="class-info-card">
+
+                    <h4>Tổng số lớp</h4>
+
+                    <p th:text="${#lists.size(classes)}">0</p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Đang mở</h4>
+
+                    <p>--</p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Đã kết thúc</h4>
+
+                    <p>--</p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Đã hủy</h4>
+
+                    <p>--</p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="admin-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>Mã lớp</th>
+
+                        <th>Tên lớp</th>
+
+                        <th>Khóa học</th>
+
+                        <th>Giảng viên</th>
+
+                        <th>Ngày bắt đầu</th>
+
+                        <th>Ngày kết thúc</th>
+
+                        <th>Trạng thái</th>
+
+                        <th>Thao tác</th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="courseClass : ${classes}">
+
+                        <td>
+                            <strong th:text="${courseClass.classCode}"></strong>
+                        </td>
+
+                        <td>
+
+                            <strong th:text="${courseClass.className}"></strong>
+
+                            <small th:text="'ID: ' + ${courseClass.id}"></small>
+
+                        </td>
+
+                        <td th:text="${courseClass.course.courseName}">
+                        </td>
+
+                        <td>
+
+                            <strong th:text="${courseClass.teacher.fullName}"></strong>
+
+                            <small th:text="${courseClass.teacher.email}"></small>
+
+                        </td>
+
+                        <td
+                                th:text="${#temporals.format(courseClass.startDate,'dd/MM/yyyy')}">
+                        </td>
+
+                        <td
+                                th:text="${courseClass.endDate != null ?
+                    #temporals.format(courseClass.endDate,'dd/MM/yyyy') : '--'}">
+                        </td>
+
+                        <td>
+
+                <span class="status-badge"
+
+                      th:classappend="${#strings.toLowerCase(courseClass.status.name())}"
+
+                      th:text="${courseClass.status}">
+                </span>
+
+                        </td>
+
+
+                        <td class="table-actions">
+
+                            <a class="small-button detail"
+
+                               th:href="@{/staff/classes/{id}/students(id=${courseClass.id})}">
+
+                                Học viên
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+
+
+                    <tr th:if="${#lists.isEmpty(classes)}">
+
+                        <td colspan="8"
+                            class="empty-row">
+
+                            Chưa có lớp học nào.
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

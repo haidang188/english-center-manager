@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý học phí</title>
+
+    <!-- CSS dùng chung -->
+    <link rel="stylesheet"
+          th:href="@{/css/admin.css}">
+
+    <!-- CSS riêng của Staff -->
+    <link rel="stylesheet"
+          th:href="@{/css/staff.css}">
+
+</head>
+
+<body>
+
+<div class="admin-shell">
+
+    <!-- Sidebar -->
+    <div th:replace="~{staff/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+
+        <!-- Topbar -->
+        <div th:replace="~{staff/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h3 class="staff-title">
+
+                        Quản lý học phí
+
+                    </h3>
+
+                    <span>
+
+                        Quản lý các đợt thu học phí của từng lớp
+
+                    </span>
+
+                </div>
+
+                <a th:href="@{/staff/tuition-batches/create}"
+                   class="action-button">
+
+                    + Tạo đợt học phí
+
+                </a>
+
+            </div>
+
+            <!-- Flash Message -->
+
+            <div th:if="${successMessage}"
+                 class="flash-message success"
+                 th:text="${successMessage}">
+            </div>
+
+            <div th:if="${errorMessage}"
+                 class="flash-message error"
+                 th:text="${errorMessage}">
+            </div>
+
+            <!-- =========================
+     Search & Statistics
+========================= -->
+
+            <form th:action="@{/staff/tuition-batches}"
+                  method="get"
+                  class="filter-form advanced">
+
+                <input type="text"
+                       name="keyword"
+                       th:value="${keyword}"
+                       placeholder="Tìm theo tên lớp hoặc ghi chú">
+
+                <button type="submit">
+
+                    Tìm kiếm
+
+                </button>
+
+                <a th:href="@{/staff/tuition-batches}"
+                   class="cancel-button compact">
+
+                    Xóa lọc
+
+                </a>
+
+            </form>
+
+            <!-- =========================
+                 Tuition Statistics
+            ========================= -->
+
+            <div class="class-info">
+
+                <div class="class-info-card">
+
+                    <h4>Tổng số đợt</h4>
+
+                    <p th:text="${#lists.size(tuitionBatches)}">0</p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Còn hạn</h4>
+
+                    <p th:text="${activeBatchCount != null ? activeBatchCount : '--'}"></p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Quá hạn</h4>
+
+                    <p th:text="${expiredBatchCount != null ? expiredBatchCount : '--'}"></p>
+
+                </div>
+
+                <div class="class-info-card">
+
+                    <h4>Tổng học phí</h4>
+
+                    <p th:text="${totalAmount != null ? #numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT') : '--'}"></p>
+
+                </div>
+
+            </div>
+
+            <!-- =========================
+     Tuition Batch List
+========================= -->
+
+            <div class="table-wrapper">
+
+                <table class="admin-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>Lớp học</th>
+
+                        <th>Học phí</th>
+
+                        <th>Hạn đóng</th>
+
+                        <th>Ngày tạo</th>
+
+                        <th>Người tạo</th>
+
+                        <th>Ghi chú</th>
+
+                        <th>Trạng thái</th>
+
+                        <th>Thao tác</th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="batch : ${tuitionBatches}">
+
+                        <!-- Lớp -->
+                        <td>
+
+                            <strong th:text="${batch.courseClass.classCode}"></strong>
+
+                            <small th:text="${batch.courseClass.className}"></small>
+
+                        </td>
+
+                        <!-- Học phí -->
+                        <td
+                                th:text="${#numbers.formatDecimal(batch.amount,0,'COMMA',0,'POINT')} + ' VNĐ'">
+                        </td>
+
+                        <!-- Hạn đóng -->
+                        <td
+                                th:text="${#temporals.format(batch.dueDate,'dd/MM/yyyy')}">
+                        </td>
+
+                        <!-- Ngày tạo -->
+                        <td
+                                th:text="${#temporals.format(batch.createdAt,'dd/MM/yyyy HH:mm')}">
+                        </td>
+
+                        <!-- Người tạo -->
+                        <td
+                                th:text="${batch.createdByUser.fullName}">
+                        </td>
+
+                        <!-- Ghi chú -->
+                        <td
+                                th:text="${batch.note != null ? batch.note : '--'}">
+                        </td>
+
+                        <!-- Trạng thái -->
+                        <td>
+
+                <span class="status-badge"
+
+                      th:classappend="${batch.dueDate.isBefore(T(java.time.LocalDate).now()) ? 'inactive' : 'active'}"
+
+                      th:text="${batch.dueDate.isBefore(T(java.time.LocalDate).now()) ? 'Quá hạn' : 'Còn hạn'}">
+
+                </span>
+
+                        </td>
+
+                        <!-- Action -->
+                        <td class="table-actions">
+
+                            <a class="small-button detail"
+
+                               th:href="@{/staff/tuition-batches/{id}(id=${batch.id})}">
+
+                                Chi tiết
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- Empty -->
+
+                    <tr th:if="${#lists.isEmpty(tuitionBatches)}">
+
+                        <td colspan="8"
+                            class="empty-row">
+
+                            Chưa có đợt học phí nào.
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- =========================
+     Pagination
+========================= -->
+
+            <div class="pagination"
+                 th:if="${tuitionBatchPage != null and tuitionBatchPage.totalPages > 1}">
+
+                <a th:classappend="${tuitionBatchPage.first} ? ' disabled'"
+                   th:href="@{/staff/tuition-batches(
+                page=${tuitionBatchPage.number - 1},
+                keyword=${keyword})}">
+
+                    Trước
+
+                </a>
+
+                <span th:each="pageNumber : ${#numbers.sequence(0, tuitionBatchPage.totalPages - 1)}">
+
+        <a th:text="${pageNumber + 1}"
+
+           th:classappend="${pageNumber == tuitionBatchPage.number} ? ' active'"
+
+           th:href="@{/staff/tuition-batches(
+                    page=${pageNumber},
+                    keyword=${keyword})}">
+
+        </a>
+
+    </span>
+
+                <a th:classappend="${tuitionBatchPage.last} ? ' disabled'"
+
+                   th:href="@{/staff/tuition-batches(
+                page=${tuitionBatchPage.number + 1},
+                keyword=${keyword})}">
+
+                    Sau
+
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

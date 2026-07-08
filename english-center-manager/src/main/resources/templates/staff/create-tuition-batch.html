@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Tạo đợt học phí</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/staff.css}">
+
+</head>
+
+<body>
+
+<div class="admin-shell">
+
+    <div th:replace="~{staff/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+
+        <div th:replace="~{staff/fragments/topbar :: topbar}"></div>
+
+        <section class="panel form-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h3 class="staff-title">
+
+                        Tạo đợt học phí
+
+                    </h3>
+
+                    <span>
+
+                        Khởi tạo học phí cho toàn bộ học viên trong lớp
+
+                    </span>
+
+                </div>
+
+                <a th:href="@{/staff/tuition-batches}"
+                   class="secondary-link">
+
+                    Quay lại
+
+                </a>
+
+            </div>
+
+            <form th:object="${tuitionBatchForm}"
+                  th:action="@{/staff/tuition-batches/create}"
+                  method="post"
+                  class="admin-form">
+
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <div class="form-grid">
+
+                    <!-- Lớp học -->
+                    <div class="form-group">
+
+                        <label>Lớp học</label>
+
+                        <select th:field="*{classId}">
+
+                            <option value="">-- Chọn lớp học --</option>
+
+                            <option th:each="item : ${classes}"
+                                    th:value="${item.id}"
+                                    th:text="${item.classCode + ' - ' + item.className}">
+                            </option>
+
+                        </select>
+
+                        <p class="field-error"
+                           th:if="${#fields.hasErrors('classId')}"
+                           th:errors="*{classId}">
+                        </p>
+
+                    </div>
+
+                    <!-- Học phí -->
+                    <div class="form-group">
+
+                        <label>Học phí (VNĐ)</label>
+
+                        <input type="number"
+                               th:field="*{amount}"
+                               min="0"
+                               step="1000"
+                               placeholder="3000000">
+
+                        <p class="field-error"
+                           th:if="${#fields.hasErrors('amount')}"
+                           th:errors="*{amount}">
+                        </p>
+
+                    </div>
+
+                    <!-- Hạn đóng -->
+                    <div class="form-group">
+
+                        <label>Hạn đóng</label>
+
+                        <input type="date"
+                               th:field="*{dueDate}">
+
+                        <p class="field-error"
+                           th:if="${#fields.hasErrors('dueDate')}"
+                           th:errors="*{dueDate}">
+                        </p>
+
+                    </div>
+
+                    <!-- Ghi chú -->
+                    <div class="form-group full">
+
+                        <label>Ghi chú</label>
+
+                        <textarea th:field="*{note}"
+                                  rows="4"
+                                  placeholder="Nhập ghi chú nếu có">
+            </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button type="submit"
+                            class="action-button">
+
+                        Tạo đợt học phí
+
+                    </button>
+
+                    <a th:href="@{/staff/tuition-batches}"
+                       class="cancel-button">
+
+                        Hủy
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

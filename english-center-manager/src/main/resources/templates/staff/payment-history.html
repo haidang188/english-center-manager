@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Lịch sử thanh toán</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/staff.css}">
+</head>
+
+<body>
+
+<div class="admin-shell">
+
+    <div th:replace="~{staff/fragments/sidebar :: sidebar}"></div>
+
+    <main class="admin-main">
+
+        <div th:replace="~{staff/fragments/topbar :: topbar}"></div>
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h3 class="staff-title">Lịch sử thanh toán</h3>
+
+                    <span>Theo dõi các lần ghi nhận thanh toán học phí</span>
+
+                </div>
+
+                <a th:href="@{/staff/tuition-batches/{id}(id=${studentTuition.tuitionBatch.id})}"
+                   class="cancel-button">
+                    Quay lại
+                </a>
+
+            </div>
+
+            <div class="class-info">
+
+                <div class="class-info-card">
+                    <h4>Học viên</h4>
+                    <p th:text="${studentTuition.student.fullName}"></p>
+                </div>
+
+                <div class="class-info-card">
+                    <h4>Lớp học</h4>
+                    <p th:text="${studentTuition.tuitionBatch.courseClass.className}"></p>
+                </div>
+
+                <div class="class-info-card">
+                    <h4>Học phí</h4>
+                    <p th:text="${#numbers.formatDecimal(studentTuition.amount,0,'COMMA',0,'POINT')} + ' VNĐ'"></p>
+                </div>
+
+                <div class="class-info-card">
+                    <h4>Trạng thái</h4>
+                    <p th:text="${studentTuition.status}"></p>
+                </div>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table class="admin-table">
+
+                    <thead>
+
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Số tiền</th>
+                        <th>Phương thức</th>
+                        <th>Ghi chú</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="history : ${histories}">
+
+                        <td th:text="${#temporals.format(history.paidAt,'dd/MM/yyyy HH:mm')}"></td>
+
+                        <td th:text="${#numbers.formatDecimal(history.paidAmount,0,'COMMA',0,'POINT')} + ' VNĐ'"></td>
+
+                        <td th:text="${history.paymentMethod}"></td>
+
+                        <td th:text="${history.note != null ? history.note : '--'}"></td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(histories)}">
+
+                        <td colspan="4"
+                            class="empty-row">
+                            Chưa có lịch sử thanh toán.
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
